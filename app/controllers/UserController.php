@@ -7,12 +7,10 @@ class UserController extends \BaseController {
      *
      * @return Response
      */
-    // public function getIndex()
-    // {
-    //     // $omimusers = Omimuser::all();
-
-    //     // return View::make('omimusers.index', compact('omimusers'));
-    // }
+    public function getIndex()
+    {
+        return Redirect::to('user/list');
+    }
 
     /**
      * Show Login Form
@@ -21,11 +19,6 @@ class UserController extends \BaseController {
      */
     public function getLogin()
     {
-        // $omimusers = Omimuser::all();
-        // var_dump($omimusers);
-        // die();
-
-        // return View::make('omimusers.login', compact('omimusers'));
         return View::make('users.login');
     }
 
@@ -50,17 +43,10 @@ class UserController extends \BaseController {
             if (Auth::attempt($credentials)) {
                 return Redirect::to('admin');
             } else {
-                return Redirect::to('user/login')->withInput()->withErrors($validator);
+                return Redirect::to('user/list')->withInput()->withErrors($validator);
             }
         }
-        // $omimusers = Omimuser::all();
-        // var_dump($omimusers);
-        // die();
-
-        // return View::make('omimusers.login', compact('omimusers'));
-        // return View::make('users.login');
     }
-
 
     /**
      * Logout the user
@@ -73,7 +59,6 @@ class UserController extends \BaseController {
         return Redirect::to('/');
 
     }
-
 
     /**
      * Show Register Form
@@ -120,101 +105,254 @@ class UserController extends \BaseController {
             $user->surename = $input['surename'];
             $user->isroot = (int) $input['isroot'];
             $user->save();
-            return Redirect::to('user/login');
+            return Redirect::to('user/list');
         } else {
             return Redirect::to('user/register')->withInput()->withErrors($validator);
         }
     }
 
-
     /**
-     * Show the form for creating a new omimuser
+     * Show User list
      *
      * @return Response
      */
-    // public function create()
-    // {
-    //     return View::make('omimusers.create');
-    // }
+    public function getList()
+    {
+        if (!Auth::check()) {
+            return Redirect::to('user/login');
+        }
+        if (Auth::user()->isroot != 1) {
+            return Redirect::to('admin')->with('error-message',
+                'Sie haben keine Berechtigung die Ressource \'user/list\' zu verwenden.');
+        }
+        $omimusers = Omimuser::all();
+        // var_dump($omimusers);
+        return View::make('users.list', compact('omimusers'));
+    }
 
     /**
-     * Store a newly created omimuser in storage.
+     * Get Edit User
      *
      * @return Response
      */
-    // public function store()
-    // {
-    //     $validator = Validator::make($data = Input::all(), Omimuser::$rules);
-
-    //     if ($validator->fails())
-    //     {
-    //         return Redirect::back()->withErrors($validator)->withInput();
-    //     }
-
-    //     Omimuser::create($data);
-
-    //     return Redirect::route('omimusers.index');
-    // }
-
-    /**
-     * Display the specified omimuser.
-     *
-     * @param  int  $id
-     * @return Response
-     */
-    // public function show($id)
-    // {
-    //     $omimuser = Omimuser::findOrFail($id);
-
-    //     return View::make('omimusers.show', compact('omimuser'));
-    // }
-
-    /**
-     * Show the form for editing the specified omimuser.
-     *
-     * @param  int  $id
-     * @return Response
-     */
-    // public function edit($id)
-    // {
-    //     $omimuser = Omimuser::find($id);
-
-    //     return View::make('omimusers.edit', compact('omimuser'));
-    // }
+    public function getEdit($id = null)
+    {
+        if (!Auth::check()) {
+            return Redirect::to('user/login');
+        }
+        if (Auth::user()->isroot != 1) {
+            return Redirect::to('admin')->with('error-message',
+                'Sie haben keine Berechtigung die Ressource \'user/list\' zu verwenden.');
+        }
+        if (!isset($id)) {
+            return Redirect::to('user/list')->with('error-message',
+                'Wählen Sie einen Benutzer aus der Liste.');
+        }
+        $id = (int) $id;
+        if (!isset($id) || $id == 0) {
+            return Redirect::to('user/list')->with('error-message',
+                'Der angegebene Benutzer konnte nicht gefunden werden. Wählen Sie einen Benutzer aus der Liste.');
+        }
+        $omimuser = Omimuser::find($id);
+        if (!isset($omimuser) || empty($omimuser)) {
+            return Redirect::to('user/list')->with('error-message',
+                'Der angegebene Benutzer konnte nicht gefunden werden. Wählen Sie einen Benutzer aus der Liste.');
+        }
+        return View::make('users.edit', compact('omimuser'));
+    }
 
     /**
-     * Update the specified omimuser in storage.
+     * Post Edit User
      *
-     * @param  int  $id
      * @return Response
      */
-    // public function update($id)
-    // {
-    //     $omimuser = Omimuser::findOrFail($id);
+    public function postEdit($id = null)
+    {
+        // var_dump(Input::all());
+        $params = Input::all();
+        if (!Auth::check()) {
+            return Redirect::to('user/login');
+        }
+        if (Auth::user()->isroot != 1) {
+            return Redirect::to('admin')->with('error-message',
+                'Sie haben keine Berechtigung die Ressource \'user/list\' zu verwenden.');
+        }
+        if (!isset($id)) {
+            return Redirect::to('user/list')->with('error-message',
+                'Wählen Sie einen Benutzer aus der Liste.');
+        }
+        $id = (int) $id;
+        if (!isset($id) || $id == 0) {
+            return Redirect::to('user/list')->with('error-message',
+                'Der angegebene Benutzer konnte nicht gefunden werden. Wählen Sie einen Benutzer aus der Liste.');
+        }
+        $omimuser = Omimuser::find($id);
+        if (!isset($omimuser) || empty($omimuser)) {
+            return Redirect::to('user/list')->with('error-message',
+                'Der angegebene Benutzer konnte nicht gefunden werden. Wählen Sie einen Benutzer aus der Liste.');
+        }
+        $modified = false;
+        if (isset($params['username']) && !empty($params['username']) && $params['username'] !== $omimuser->username) {
+            $registedUser = User::where('username', '=', $params['username'])->get();
+            if (!$registedUser->isEmpty()) {
+                return Redirect::to('user/list')->with('error-message',
+                'Dieser Benutzername existiert bereits. Änerung nicht möglich.');
+            } else {
+                $omimuser->username = $params['username'];
+                $modified = true;
+            }
+        }
+        if (isset($params['forname']) && !empty($params['forname']) && $params['forname'] !== $omimuser->forname) {
+            $omimuser->forname = $params['forname'];
+            $modified = true;
+        }
+        if (isset($params['surename']) && !empty($params['surename']) && $params['surename'] !== $omimuser->surename) {
+            $omimuser->surename = $params['surename'];
+            $modified = true;
+        }
+        if (isset($params['isroot']) && $params['isroot'] !== $omimuser->isroot) {
+            $omimuser->isroot = $params['isroot'];
+            $modified = true;
+        }
+        if ($modified === true) {
+            $omimuser->save();
+        }
+        return Redirect::to('user/list')->with('success-message',
+                'Benutzer &quot;' . strip_tags($omimuser->username) . '&quot; erfolgreich editiert.');
+        return;
+    }
 
-    //     $validator = Validator::make($data = Input::all(), Omimuser::$rules);
-
-    //     if ($validator->fails())
-    //     {
-    //         return Redirect::back()->withErrors($validator)->withInput();
-    //     }
-
-    //     $omimuser->update($data);
-
-    //     return Redirect::route('omimusers.index');
-    // }
 
     /**
-     * Remove the specified omimuser from storage.
+     * Get Change User Password
      *
-     * @param  int  $id
      * @return Response
      */
-    // public function destroy($id)
-    // {
-    //     Omimuser::destroy($id);
+    public function getChpwd($id = null)
+    {
+        if (!Auth::check()) {
+            return Redirect::to('user/login');
+        }
+        if (Auth::user()->isroot != 1) {
+            return Redirect::to('admin')->with('error-message',
+                'Sie haben keine Berechtigung die Ressource \'user/list\' zu verwenden.');
+        }
+        if (!isset($id)) {
+            return Redirect::to('user/list')->with('error-message',
+                'Wählen Sie einen Benutzer aus der Liste.');
+        }
+        $id = (int) $id;
+        if (!isset($id) || $id == 0) {
+            return Redirect::to('user/list')->with('error-message',
+                'Der angegebene Benutzer konnte nicht gefunden werden. Wählen Sie einen Benutzer aus der Liste.');
+        }
+        $omimuser = Omimuser::find($id);
+        if (!isset($omimuser) || empty($omimuser)) {
+            return Redirect::to('user/list')->with('error-message',
+                'Der angegebene Benutzer konnte nicht gefunden werden. Wählen Sie einen Benutzer aus der Liste.');
+        }
+        return View::make('users.chpwd', compact('omimuser'));
+    }
 
-    //     return Redirect::route('omimusers.index');
-    // }
+    /**
+     * Post Change User Password
+     *
+     * @return Response
+     */
+    public function postChpwd($id = null)
+    {
+        $params = Input::all();
+        if (!Auth::check()) {
+            return Redirect::to('user/login');
+        }
+        if (Auth::user()->isroot != 1) {
+            return Redirect::to('admin')->with('error-message',
+                'Sie haben keine Berechtigung die Ressource \'user/list\' zu verwenden.');
+        }
+        if (!isset($id)) {
+            return Redirect::to('user/list')->with('error-message',
+                'Wählen Sie einen Benutzer aus der Liste.');
+        }
+        $id = (int) $id;
+        if (!isset($id) || $id == 0) {
+            return Redirect::to('user/list')->with('error-message',
+                'Der angegebene Benutzer konnte nicht gefunden werden. Wählen Sie einen Benutzer aus der Liste.');
+        }
+        $omimuser = Omimuser::find($id);
+        if (!isset($omimuser) || empty($omimuser)) {
+            return Redirect::to('user/list')->with('error-message',
+                'Der angegebene Benutzer konnte nicht gefunden werden. Wählen Sie einen Benutzer aus der Liste.');
+        }
+        $rules = array('password' => 'required|unique:omim_users');
+        $messages = array();
+        $validator = Validator::make($params, $rules, $messages);
+        if ($validator->passes()) {
+            $password = Hash::make($params['password']);
+            $omimuser->password = $password;
+            $omimuser->save();
+            return Redirect::to('user/list')->with('success-message',
+                'Passwort für Benutzer &quot;'
+                . strip_tags($omimuser->username)
+                . '&quot; erfolgreich gesetzt.');
+        } else {
+            return Redirect::to('user/chowd/' . $id)->withInput()->withErrors($validator);
+        }
+    }
+
+    /**
+     * Get Delete User
+     *
+     * @return Response
+     */
+    public function getDelete($id = null)
+    {
+        $confirm = Input::get('confirm');
+        if (!Auth::check()) {
+            return Redirect::to('user/login');
+        }
+        if (Auth::user()->isroot != 1) {
+            return Redirect::to('admin')->with('error-message',
+                'Sie haben keine Berechtigung die Ressource \'user/list\' zu verwenden.');
+        }
+        if (!isset($id)) {
+            return Redirect::to('user/list')->with('error-message',
+                'Wählen Sie einen Benutzer aus der Liste.');
+        }
+        $id = (int) $id;
+        if (!isset($id) || $id == 0) {
+            return Redirect::to('user/list')->with('error-message',
+                'Der angegebene Benutzer konnte nicht gefunden werden. Wählen Sie einen Benutzer aus der Liste.');
+        }
+        $omimuser = Omimuser::find($id);
+        if (!isset($omimuser) || empty($omimuser)) {
+            return Redirect::to('user/list')->with('error-message',
+                'Der angegebene Benutzer konnte nicht gefunden werden. Wählen Sie einen Benutzer aus der Liste.');
+        }
+        $omimusers = Omimuser::all();
+        if (count($omimusers) == 1) {
+            return Redirect::to('user/list')->with('error-message',
+                'Sie könnnen nicht alle Benutzer löschen. Stellen Sie sicher, dass es mehr als einen Benutzer gibt.');
+        }
+        $rootUserLeft = false;
+        foreach ($omimusers as $ou) {
+            if ((int) $ou->id !== $id && $ou->isroot) {
+                $rootUserLeft = true;
+            }
+        }
+        if ($rootUserLeft !== true) {
+            return Redirect::to('user/list')->with('error-message',
+                'Sie müssen sicherstellen, dasss es mindestens einen Benutzer mit Rootrechten gibt.');
+        }
+        if ($confirm == 'ok') {
+            $username = $omimuser->username;
+            $omimuser->delete();
+            return Redirect::to('user/list')->with('success-message',
+                'Benutzer &quot;'
+                . strip_tags($username)
+                . '&quot; erfolgreich gelöscht.');
+        }
+
+        return View::make('users.delete', compact('omimuser'));
+    }
 
 }

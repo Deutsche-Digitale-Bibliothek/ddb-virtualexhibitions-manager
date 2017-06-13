@@ -37,6 +37,17 @@
                                 @endif
                             </ul>
                         </li>
+                        @if (Auth::user()->isroot == 1)
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Omim Benutzer</a>
+                            <ul class="dropdown-menu" role="menu">
+                                <li{{ Request::is('user/register') ? ' class="active"' : '' }}>
+                                    {{ HTML::link('user/register', 'Omim Benutzer hinzufügen') }}</li>
+                                <li{{ Request::is('user/list') ? ' class="active"' : '' }}>
+                                    {{ HTML::link('user/list', 'Omim Benutzer verwalten') }}</li>
+                            </ul>
+                        </li>
+                        @endif
                     </ul>
                     @endif
                     <ul class="nav navbar-nav pull-right">
