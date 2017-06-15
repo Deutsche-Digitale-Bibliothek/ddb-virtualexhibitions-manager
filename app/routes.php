@@ -25,3 +25,12 @@ Route::post('user/delete/{id}', 'UserController@postDelete');
 Route::group(array('before' => 'auth'), function(){
     Route::controller('admin', 'AdminController');
 });
+Route::group(array('before' => 'auth'), function(){
+    Route::controller('omeka-user', 'OmekaUserController');
+    Route::get('omeka-user/edit/{id}', 'OmekaUserController@getEdit');
+    Route::post('omeka-user/edit/{id}', 'OmekaUserController@postEdit');
+    Route::get('omeka-user/chpwd/{id}', 'OmekaUserController@getChpwd');
+    Route::post('omeka-user/chpwd/{id}', 'OmekaUserController@postChpwd');
+    Route::get('omeka-user/delete/{id}', 'OmekaUserController@getDelete');
+    Route::post('omeka-user/delete/{id}', 'OmekaUserController@postDelete');
+});

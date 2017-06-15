@@ -6,6 +6,20 @@
                     <div class="panel-title">Omim Benutzer löschen</div>
                 </div>
                 <div class="panel-body">
+                <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Benutzername</th>
+                                <th>Name</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>{{$omimuser->username}}</td>
+                                <td>{{$omimuser->forname}} {{$omimuser->surename}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
                     <p>Sind Sie sicher, dass Sie den Benutzer <strong>"{{{ $omimuser->username }}}"</strong> unwiederruflich löschen möchten?</p>
                     <a class="btn btn-success" href="{{ URL::to('user/list') }}" role="button">Abbrechen</a>
                     <a class="btn btn-danger" href="{{ URL::to('user/delete') }}/{{ $omimuser->id }}?confirm=ok" role="button"><span class="glyphicon glyphicon-remove"></span>  Löschen</a>

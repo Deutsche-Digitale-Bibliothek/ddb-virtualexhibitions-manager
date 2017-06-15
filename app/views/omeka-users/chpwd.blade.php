@@ -3,10 +3,10 @@
         <div id="loginbox" class="mainbox col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
             <div class="panel panel-primary">
                 <div class="panel-heading">
-                    <div class="panel-title">Omim Benutzer Passwort ändern</div>
+                    <div class="panel-title">Omeka Standard-Benutzer Passwort ändern</div>
                 </div>
                 <div class="panel-body gina-form">
-                    {{ Form::model($omimuser, array('url' => array('user/chpwd', $omimuser->id))) }}
+                    {{ Form::model($user, array('url' => array('omeka-user/chpwd', $user->id))) }}
                     @if ($errors->any())
                     <div id="login-alert" class="alert alert-danger">
                         <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
@@ -17,24 +17,24 @@
                         <thead>
                             <tr>
                                 <th>Benutzername</th>
-                                <th>Vorname</th>
-                                <th>Nachname</th>
+                                <th>Name</th>
+                                <th>E-Mail</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td>{{$omimuser->username}}</td>
-                                <td>{{$omimuser->forname}}</td>
-                                <td>{{$omimuser->surename}}</td>
+                                <td>{{$user->username}}</td>
+                                <td>{{$user->name}}</td>
+                                <td>{{$user->email}}</td>
                             </tr>
                         </tbody>
                     </table>
                     <div class="form-group">
-                        {{ Form::label('user-chpwd-password', 'Passwort') }}
+                        {{ Form::label('omeka-user-chpwd-password', 'Passwort') }}
                         <div class="input-group">
                             <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
                             {{ Form::password('password', array(
-                                'id' => 'user-chpwd-password',
+                                'id' => 'omeka-user-chpwd-password',
                                 'placeholder' => 'neues Passwort',
                                 'class' => 'form-control'
                             )) }}

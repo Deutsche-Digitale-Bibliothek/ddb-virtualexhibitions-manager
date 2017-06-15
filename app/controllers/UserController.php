@@ -43,7 +43,7 @@ class UserController extends \BaseController {
             if (Auth::attempt($credentials)) {
                 return Redirect::to('admin');
             } else {
-                return Redirect::to('user/list')->withInput()->withErrors($validator);
+                return Redirect::to('user/login')->withInput()->withErrors($validator);
             }
         }
     }
@@ -125,7 +125,7 @@ class UserController extends \BaseController {
             return Redirect::to('admin')->with('error-message',
                 'Sie haben keine Berechtigung die Ressource \'user/list\' zu verwenden.');
         }
-        $omimusers = Omimuser::all();
+        $omimusers = OmimUser::all();
         // var_dump($omimusers);
         return View::make('users.list', compact('omimusers'));
     }
@@ -153,7 +153,7 @@ class UserController extends \BaseController {
             return Redirect::to('user/list')->with('error-message',
                 'Der angegebene Benutzer konnte nicht gefunden werden. Wählen Sie einen Benutzer aus der Liste.');
         }
-        $omimuser = Omimuser::find($id);
+        $omimuser = OmimUser::find($id);
         if (!isset($omimuser) || empty($omimuser)) {
             return Redirect::to('user/list')->with('error-message',
                 'Der angegebene Benutzer konnte nicht gefunden werden. Wählen Sie einen Benutzer aus der Liste.');
@@ -186,7 +186,7 @@ class UserController extends \BaseController {
             return Redirect::to('user/list')->with('error-message',
                 'Der angegebene Benutzer konnte nicht gefunden werden. Wählen Sie einen Benutzer aus der Liste.');
         }
-        $omimuser = Omimuser::find($id);
+        $omimuser = OmimUser::find($id);
         if (!isset($omimuser) || empty($omimuser)) {
             return Redirect::to('user/list')->with('error-message',
                 'Der angegebene Benutzer konnte nicht gefunden werden. Wählen Sie einen Benutzer aus der Liste.');
@@ -246,7 +246,7 @@ class UserController extends \BaseController {
             return Redirect::to('user/list')->with('error-message',
                 'Der angegebene Benutzer konnte nicht gefunden werden. Wählen Sie einen Benutzer aus der Liste.');
         }
-        $omimuser = Omimuser::find($id);
+        $omimuser = OmimUser::find($id);
         if (!isset($omimuser) || empty($omimuser)) {
             return Redirect::to('user/list')->with('error-message',
                 'Der angegebene Benutzer konnte nicht gefunden werden. Wählen Sie einen Benutzer aus der Liste.');
@@ -278,12 +278,12 @@ class UserController extends \BaseController {
             return Redirect::to('user/list')->with('error-message',
                 'Der angegebene Benutzer konnte nicht gefunden werden. Wählen Sie einen Benutzer aus der Liste.');
         }
-        $omimuser = Omimuser::find($id);
+        $omimuser = OmimUser::find($id);
         if (!isset($omimuser) || empty($omimuser)) {
             return Redirect::to('user/list')->with('error-message',
                 'Der angegebene Benutzer konnte nicht gefunden werden. Wählen Sie einen Benutzer aus der Liste.');
         }
-        $rules = array('password' => 'required|unique:omim_users');
+        $rules = array('password' => 'required');
         $messages = array();
         $validator = Validator::make($params, $rules, $messages);
         if ($validator->passes()) {
@@ -295,7 +295,7 @@ class UserController extends \BaseController {
                 . strip_tags($omimuser->username)
                 . '&quot; erfolgreich gesetzt.');
         } else {
-            return Redirect::to('user/chowd/' . $id)->withInput()->withErrors($validator);
+            return Redirect::to('user/chpwd/' . $id)->withInput()->withErrors($validator);
         }
     }
 
@@ -323,12 +323,12 @@ class UserController extends \BaseController {
             return Redirect::to('user/list')->with('error-message',
                 'Der angegebene Benutzer konnte nicht gefunden werden. Wählen Sie einen Benutzer aus der Liste.');
         }
-        $omimuser = Omimuser::find($id);
+        $omimuser = OmimUser::find($id);
         if (!isset($omimuser) || empty($omimuser)) {
             return Redirect::to('user/list')->with('error-message',
                 'Der angegebene Benutzer konnte nicht gefunden werden. Wählen Sie einen Benutzer aus der Liste.');
         }
-        $omimusers = Omimuser::all();
+        $omimusers = OmimUser::all();
         if (count($omimusers) == 1) {
             return Redirect::to('user/list')->with('error-message',
                 'Sie könnnen nicht alle Benutzer löschen. Stellen Sie sicher, dass es mehr als einen Benutzer gibt.');

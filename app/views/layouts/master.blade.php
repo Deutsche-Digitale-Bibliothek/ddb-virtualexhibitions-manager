@@ -38,13 +38,22 @@
                             </ul>
                         </li>
                         @if (Auth::user()->isroot == 1)
-                        <li class="dropdown">
+                        <li class="dropdown{{ Request::is('user/*') ? ' active"' : '"' }}>
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Omim Benutzer</a>
                             <ul class="dropdown-menu" role="menu">
                                 <li{{ Request::is('user/register') ? ' class="active"' : '' }}>
                                     {{ HTML::link('user/register', 'Omim Benutzer hinzufügen') }}</li>
                                 <li{{ Request::is('user/list') ? ' class="active"' : '' }}>
                                     {{ HTML::link('user/list', 'Omim Benutzer verwalten') }}</li>
+                            </ul>
+                        </li>
+                        <li class="dropdown{{ Request::is('omeka-user/*') ? ' active"' : '"' }}>
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Omeka Benutzer</a>
+                            <ul class="dropdown-menu" role="menu">
+                                <li{{ Request::is('omeka-user/create') ? ' class="active"' : '' }}>
+                                    {{ HTML::link('omeka-user/create', 'Omeka Standard-Benutzer hinzufügen') }}</li>
+                                <li{{ Request::is('omeka-user/list') ? ' class="active"' : '' }}>
+                                    {{ HTML::link('omeka-user/list', 'Omim Standard-Benutzer verwalten') }}</li>
                             </ul>
                         </li>
                         @endif
