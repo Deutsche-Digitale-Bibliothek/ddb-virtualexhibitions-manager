@@ -306,4 +306,84 @@ class OmekaUserController extends \BaseController {
         return View::make('omeka-users.delete', compact('user'));
     }
 
+    /**
+     * Get users in OmekaInstances
+     *
+     * @return Response
+     */
+    public function getOmekaInstances()
+    {
+        $instances = OmimInstance::all();
+        // var_dump($instances);
+        $users = [];
+        foreach ($instances as $key => $instance) {
+            $users[$instance->id] = DB::select('select * from omeka_exh' . $instance->id . '_users');
+        }
+        return View::make('omeka-users.instances', compact('instances', 'users'));
+    }
+
+    /**
+     * Post users in OmekaInstances
+     *
+     * @return Response
+     */
+    public function postOmekaInstances()
+    {
+        if (Auth::user()->isroot != 1) {
+            return Redirect::to('omeka-user/omeka-instances')->with('error-message', $this->msg{'error'}{'no-prevelege'});
+        }
+        $instances = OmimInstance::all();
+        // var_dump($instances);
+        $users = [];
+        foreach ($instances as $key => $instance) {
+            $users[$instance->id] = DB::select('select * from omeka_exh' . $instance->id . '_users');
+        }
+        // var_dump($users);
+        $input = Input::all();
+        $filter = [
+            'role' => ['super', 'admin', 'contributor', 'researcher'],
+            'active' => [0,1]
+        ];
+        // var_dump($input);
+        // var_dump($input['exh']);
+        $modified = false;
+        if (isset($input['exh']) && !empty($input['exh']) && is_array($input['exh'])) {
+            foreach ($input['exh'] as $inputExhibitId => $inputUsers) {
+                if (isset($users[$inputExhibitId]) && !empty($users[$inputExhibitId])) {
+                    foreach ($users[$inputExhibitId] as $user) {
+                        if (isset($inputUsers[$user->id]) && !empty($inputUsers[$user->id])) {
+                            if (isset($inputUsers[$user->id]['role'])
+                                && $inputUsers[$user->id]['role'] != $user->role
+                                && in_array($inputUsers[$user->id]['role'], $filter['role']))
+                            {
+                                // echo 'Chage Role for ' . $user->username . ' - ' . $inputUsers[$user->id]['role'] . '<br>';
+                                $role = DB::connection()->getPdo()->quote($inputUsers[$user->id]['role']);
+                                // echo 'update omeka_exh' . $inputExhibitId . '_users set role = ' . $role . ' where id = ' . $user->id;
+                                DB::update('update omeka_exh' . $inputExhibitId . '_users set role = ' . $role . ' where id = ?', array($user->id));
+                                $modified = true;
+                            }
+                            if (isset($inputUsers[$user->id]['active'])
+                                && $inputUsers[$user->id]['active'] != $user->active
+                                && in_array((int) $inputUsers[$user->id]['active'], $filter['active']))
+                            {
+                                // echo 'Chage active for ' . $user->username . ' - ' . $inputUsers[$user->id]['active'] . '<br>';
+                                $active = (int) $inputUsers[$user->id]['active'];
+                                DB::update('update omeka_exh' . $inputExhibitId . '_users set active = ' . $active . ' where id = ?', array($user->id));
+                                $modified = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if ($modified === true) {
+            return Redirect::to('omeka-user/omeka-instances')->with('success-message',
+                'Benutzereinstellungen erfolgreich gespeichert.');
+        } else {
+            return Redirect::to('omeka-user/omeka-instances')->with('success-message',
+                'Keine Änderungen vorgenommen.');
+
+        }
+        // return View::make('omeka-users.instances', compact('instances', 'users'));
+    }
 }

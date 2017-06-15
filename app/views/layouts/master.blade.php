@@ -53,7 +53,9 @@
                                 <li{{ Request::is('omeka-user/create') ? ' class="active"' : '' }}>
                                     {{ HTML::link('omeka-user/create', 'Omeka Standard-Benutzer hinzufügen') }}</li>
                                 <li{{ Request::is('omeka-user/list') ? ' class="active"' : '' }}>
-                                    {{ HTML::link('omeka-user/list', 'Omim Standard-Benutzer verwalten') }}</li>
+                                    {{ HTML::link('omeka-user/list', 'Omeka Standard-Benutzer verwalten') }}</li>
+                                <li{{ Request::is('omeka-user/omeka-instances') ? ' class="active"' : '' }}>
+                                    {{ HTML::link('omeka-user/omeka-instances', 'Benutzer in Ausstellungen') }}</li>
                             </ul>
                         </li>
                         @endif
