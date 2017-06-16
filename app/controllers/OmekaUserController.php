@@ -191,9 +191,6 @@ class OmekaUserController extends \BaseController {
      */
     public function getChpwd($id = null)
     {
-        if (!Auth::check()) {
-            return Redirect::to('user/login');
-        }
         if (Auth::user()->isroot != 1) {
             return Redirect::to('admin')->with('error-message', $this->msg{'error'}{'no-prevelege'});
         }
@@ -333,19 +330,15 @@ class OmekaUserController extends \BaseController {
             return Redirect::to('omeka-user/omeka-instances')->with('error-message', $this->msg{'error'}{'no-prevelege'});
         }
         $instances = OmimInstance::all();
-        // var_dump($instances);
         $users = [];
         foreach ($instances as $key => $instance) {
             $users[$instance->id] = DB::select('select * from omeka_exh' . $instance->id . '_users');
         }
-        // var_dump($users);
         $input = Input::all();
         $filter = [
             'role' => ['super', 'admin', 'contributor', 'researcher'],
             'active' => [0,1]
         ];
-        // var_dump($input);
-        // var_dump($input['exh']);
         $modified = false;
         if (isset($input['exh']) && !empty($input['exh']) && is_array($input['exh'])) {
             foreach ($input['exh'] as $inputExhibitId => $inputUsers) {
@@ -356,9 +349,7 @@ class OmekaUserController extends \BaseController {
                                 && $inputUsers[$user->id]['role'] != $user->role
                                 && in_array($inputUsers[$user->id]['role'], $filter['role']))
                             {
-                                // echo 'Chage Role for ' . $user->username . ' - ' . $inputUsers[$user->id]['role'] . '<br>';
                                 $role = DB::connection()->getPdo()->quote($inputUsers[$user->id]['role']);
-                                // echo 'update omeka_exh' . $inputExhibitId . '_users set role = ' . $role . ' where id = ' . $user->id;
                                 DB::update('update omeka_exh' . $inputExhibitId . '_users set role = ' . $role . ' where id = ?', array($user->id));
                                 $modified = true;
                             }
@@ -366,7 +357,6 @@ class OmekaUserController extends \BaseController {
                                 && $inputUsers[$user->id]['active'] != $user->active
                                 && in_array((int) $inputUsers[$user->id]['active'], $filter['active']))
                             {
-                                // echo 'Chage active for ' . $user->username . ' - ' . $inputUsers[$user->id]['active'] . '<br>';
                                 $active = (int) $inputUsers[$user->id]['active'];
                                 DB::update('update omeka_exh' . $inputExhibitId . '_users set active = ' . $active . ' where id = ?', array($user->id));
                                 $modified = true;
@@ -384,6 +374,267 @@ class OmekaUserController extends \BaseController {
                 'Keine Änderungen vorgenommen.');
 
         }
-        // return View::make('omeka-users.instances', compact('instances', 'users'));
     }
+
+    /**
+     * Get users in all OmekaInstances
+     *
+     * @return Response
+     */
+    public function getEditInstanceUsers()
+    {
+        if (Auth::user()->isroot != 1) {
+            return Redirect::to('admin')->with('error-message', $this->msg{'error'}{'no-prevelege'});
+        }
+        $instances = OmimInstance::all();
+        $omimOmekaUsers = OmimOmekaUser::all();
+        $users = [];
+        foreach ($instances as $key => $instance) {
+            // $users[$instance->id] = DB::select('select username, name, email from omeka_exh' . $instance->id . '_users');
+            $currentUsers = DB::select('select username, name, email from omeka_exh' . $instance->id . '_users');
+            if (is_array($currentUsers)) {
+                $users = array_merge_recursive($users, $currentUsers);
+            }
+        }
+        // var_dump($users);
+        $unipueUsers = array_map("unserialize", array_unique(array_map("serialize", $users)));
+        usort($unipueUsers, function($a, $b) {
+            return strcmp(strtolower($a->username), strtolower($b->username));
+        });
+        // var_dump($omimOmekaUsers);
+
+        return View::make('omeka-users.edit-instance-users', compact('omimOmekaUsers', 'unipueUsers'));
+    }
+
+    /**
+     * Reset user in all OmekaInstances
+     *
+     * @return Response
+     */
+    public function getResetInstancesUser()
+    {
+        if (Auth::user()->isroot != 1) {
+            return Redirect::to('admin')
+                ->with('error-message', $this->msg{'error'}{'no-prevelege'});
+        }
+
+        $params = Input::all();
+        if (!isset($params['username']) || empty($params['username'])
+            || !isset($params['name']) || empty($params['name'])
+            || !isset($params['email']) || empty($params['email']))
+        {
+            return Redirect::to('omeka-user/edit-instance-users')
+                ->with('error-message', $this->msg{'error'}{'select-user'});
+        }
+
+        // \DB::listen(function($sql, $bindings, $time) {
+        //     var_dump($sql);
+        //     var_dump($bindings);
+        //     var_dump($time);
+        // });
+
+        $omimOmekaUser = OmimOmekaUser::
+            where('username', '=', $params['username'])
+            ->where('name', '=', $params['name'])
+            ->where('email', '=', $params['email'])
+            ->get();
+
+        if ($omimOmekaUser->isEmpty()) {
+            return Redirect::to('omeka-user/edit-instance-users')
+                ->with('error-message', $this->msg{'error'}{'select-user'});
+        }
+        // var_dump($omimOmekaUser{0}->name);
+
+        $instances = OmimInstance::all();
+        foreach ($instances as $key => $instance) {
+            $user = DB::table('omeka_exh' . $instance->id . '_users')
+                ->where('username', $params['username'])
+                ->where('name', $params['name'])
+                ->where('email', $params['email'])
+                ->update(array(
+                    'password' => $omimOmekaUser{0}->password,
+                    'salt' => $omimOmekaUser{0}->salt,
+                    'role' => $omimOmekaUser{0}->role
+                ));
+
+            // $user = DB::table('omeka_exh' . $instance->id . '_users')
+            //     ->where('username', $params['username'])
+            //     ->where('name', $params['name'])
+            //     ->where('email', $params['email'])
+            //     ->get();
+            // var_dump($user);
+        }
+
+        return Redirect::to('omeka-user/edit-instance-users')
+                ->with('success-message', 'Benutzer erfolgreich zurückgesetzt.');
+
+        // dd($omimOmekaUser);
+    }
+
+    /**
+     * Get edit user in all OmekaInstances
+     *
+     * @return Response
+     */
+    public function getEditInstancesUser()
+    {
+        if (Auth::user()->isroot != 1) {
+            return Redirect::to('admin')
+                ->with('error-message', $this->msg{'error'}{'no-prevelege'});
+        }
+
+        $params = Input::all();
+        if (!isset($params['username']) || empty($params['username'])
+            || !isset($params['name']) || empty($params['name'])
+            || !isset($params['email']) || empty($params['email']))
+        {
+            return Redirect::to('omeka-user/edit-instance-users')
+                ->with('error-message', $this->msg{'error'}{'select-user'});
+        }
+
+        return View::make('omeka-users.edit-instances-user', compact('params'));
+    }
+
+    /**
+     * Post edit user in all OmekaInstances
+     *
+     * @return Response
+     */
+    public function postEditInstancesUser()
+    {
+        if (Auth::user()->isroot != 1) {
+            return Redirect::to('admin')
+                ->with('error-message', $this->msg{'error'}{'no-prevelege'});
+        }
+
+        $params = Input::all();
+
+
+        if (!isset($params['oldusername']) || empty($params['oldusername'])
+            || !isset($params['oldname']) || empty($params['oldname'])
+            || !isset($params['oldemail']) || empty($params['oldemail']))
+        {
+            return Redirect::to('omeka-user/edit-instance-users')
+                ->with('error-message', $this->msg{'error'}{'select-user'});
+        }
+
+        $rules = array('username' => 'required|alpha', 'email' => 'required|email');
+        $messages = array();
+        $validator = Validator::make($params, $rules, $messages);
+        if (!$validator->passes()) {
+            return Redirect::to('omeka-user/edit-instances-user'
+                . '?name='. urlencode($params['oldname'])
+                . '&username=' . urlencode($params['oldusername'])
+                . '&email=' . urlencode($params['oldemail']))
+                ->withInput()->withErrors($validator);
+        }
+        // var_dump($params);
+
+        $instances = OmimInstance::all();
+        $update = [
+            'username'  => $params['username'],
+            'name'      => $params['name'],
+            'email'     => $params['email']
+        ];
+        $filter = [
+            'role' => ['super', 'admin', 'contributor', 'researcher'],
+            'active' => [0,1]
+        ];
+        if (isset($params['role']) && in_array($params['role'], $filter['role']))
+        {
+            $update['role'] = $params['role'];
+        }
+        if (isset($params['active']) && in_array((int) $params['active'], $filter['active']))
+        {
+            $update['active'] = (int) $params['active'];
+        }
+        foreach ($instances as $key => $instance) {
+            $user = DB::table('omeka_exh' . $instance->id . '_users')
+                ->where('username', $params['oldusername'])
+                ->where('name', $params['oldname'])
+                ->where('email', $params['oldemail'])
+                ->update($update);
+        }
+
+        return Redirect::to('omeka-user/edit-instance-users')
+                ->with('success-message', 'Benutzer erfolgreich bearbeitet.');
+
+    }
+
+    /**
+     * Get Change User Password
+     *
+     * @return Response
+     */
+    public function getChpwdInstancesUser()
+    {
+        if (Auth::user()->isroot != 1) {
+            return Redirect::to('admin')->with('error-message', $this->msg{'error'}{'no-prevelege'});
+        }
+
+        $params = Input::all();
+        if (!isset($params['username']) || empty($params['username'])
+            || !isset($params['name']) || empty($params['name'])
+            || !isset($params['email']) || empty($params['email']))
+        {
+            return Redirect::to('omeka-user/edit-instance-users')
+                ->with('error-message', $this->msg{'error'}{'select-user'});
+        }
+
+        return View::make('omeka-users.chpwd-instances-user', compact('params'));
+    }
+
+    /**
+     * Post Change User Password
+     *
+     * @return Response
+     */
+    public function postChpwdInstancesUser()
+    {
+        if (Auth::user()->isroot != 1) {
+            return Redirect::to('admin')->with('error-message', $this->msg{'error'}{'no-prevelege'});
+        }
+
+        $params = Input::all();
+
+        if (!isset($params['username']) || empty($params['username'])
+            || !isset($params['name']) || empty($params['name'])
+            || !isset($params['email']) || empty($params['email']))
+        {
+            return Redirect::to('omeka-user/edit-instance-users')
+                ->with('error-message', $this->msg{'error'}{'select-user'});
+        }
+
+        $rules = array('password' => 'required|min:6');
+        $messages = array();
+        $validator = Validator::make($params, $rules, $messages);
+        if ($validator->passes()) {
+            $this->generateSalt();
+            $password = $this->hashPassword($params['password']);
+            $update = [
+                'salt'      => $this->salt,
+                'password'  => $password
+            ];
+            $instances = OmimInstance::all();
+            foreach ($instances as $key => $instance) {
+                $user = DB::table('omeka_exh' . $instance->id . '_users')
+                    ->where('username', $params['username'])
+                    ->where('name', $params['name'])
+                    ->where('email', $params['email'])
+                    ->update($update);
+            }
+            return Redirect::to('omeka-user/edit-instance-users')
+                ->with('success-message', 'Passwort für Benutzer &quot;'
+                    . $params['username'] . '&quot; erfolgreich geändert.');
+
+        } else {
+            return Redirect::to('omeka-user/chpwd-instances-user'
+                . '?name='. urlencode($params['name'])
+                . '&username=' . urlencode($params['username'])
+                . '&email=' . urlencode($params['email']))
+                ->withInput()->withErrors($validator);
+        }
+
+    }
+
 }

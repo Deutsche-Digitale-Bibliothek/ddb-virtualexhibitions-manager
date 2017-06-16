@@ -57,6 +57,31 @@
                     <span class="help-block">Geben Sie hier Die Sprache der Ausstellung an.<br><span class="text-danger">Achtung, diese Angabe kann später nicht verändert werden.</span></span>
                 </div>
 
+                <h4>Standardbenutzer wählen</h4>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th><i class="glyphicon glyphicon-check"></th>
+                            <th>Benutzername</th>
+                            <th>Name</th>
+                            <th>E-Mail</th>
+                            <th>Rolle</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @foreach ($users as $user)
+                        <tr>
+                            <td>
+                                {{ Form::checkbox('user[' . $user->id . ']', 1) }}
+                            </td>
+                            <td>{{$user->username}}</td>
+                            <td>{{$user->name}}</td>
+                            <td>{{$user->email}}</td>
+                            <td>{{$user->role}}</td>
+                        </tr>
+                    @endforeach
+                    </tbody>
+                </table>
 
                 <div class="submit-group pull-right">
                     {{ Form::button('Erzeugen', array('class' => 'btn btn-success', 'type' => 'submit')) }}

@@ -55,7 +55,9 @@
                                 <li{{ Request::is('omeka-user/list') ? ' class="active"' : '' }}>
                                     {{ HTML::link('omeka-user/list', 'Omeka Standard-Benutzer verwalten') }}</li>
                                 <li{{ Request::is('omeka-user/omeka-instances') ? ' class="active"' : '' }}>
-                                    {{ HTML::link('omeka-user/omeka-instances', 'Benutzer in Ausstellungen') }}</li>
+                                    {{ HTML::link('omeka-user/omeka-instances', 'Benutzer in Ausstellungen bearbeiten') }}</li>
+                                <li{{ Request::is('omeka-user/edit-instance-users') ? ' class="active"' : '' }}>
+                                    {{ HTML::link('omeka-user/edit-instance-users', 'Benutzer aller Ausstellungen bearbeiten') }}</li>
                             </ul>
                         </li>
                         @endif
@@ -112,6 +114,11 @@
         @section('footer')
         @show
         {{ HTML::script('js/main.js') }}
+        <script>
+            $(function() {
+                $('[data-toggle="tooltip"]').tooltip()
+            });
+        </script>
         @section('page-bottom')
         @show
     </body>

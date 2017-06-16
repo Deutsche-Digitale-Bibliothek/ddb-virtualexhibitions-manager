@@ -49,7 +49,8 @@ class AdminController extends \BaseController {
             return Redirect::to('admin')->with('error-message',
                 'Sie haben keine Berechtigung die Ressource \'admin/create\' zu verwenden.');
         }
-        return View::make('admin.create');
+        $users = OmimOmekaUser::all();
+        return View::make('admin.create', compact('users'));
     }
 
     /**
