@@ -68,6 +68,9 @@ class AdminController extends \BaseController {
 
 
         $input = Input::all();
+        // var_dump($input);
+        // return;
+
         $slugsInDb = DB::table('omim_instances')->lists('slug');
         $slugsInDbStr = implode(',', $slugsInDb);
         $addNotInExistingInstances = '';
@@ -169,6 +172,28 @@ class AdminController extends \BaseController {
             );
             $dbStatement = str_replace($search, $replace, $dbData);
             DB::connection()->getPdo()->exec($dbStatement);
+
+            // insert selected Omeka Base users
+            if (isset($input['user']) && !empty($input['user']) && is_array($input['user'])) {
+                foreach ($input['user'] as $userId => $userActive) {
+                    $omimOmekaUser = OmimOmekaUser::find($userId);
+                    if (isset($omimOmekaUser) && !empty($omimOmekaUser)) {
+                        DB::insert('insert into omeka_exh' . $instance->id . '_users '
+                            . '(username, name, email, password, salt, active, role) '
+                            . 'values (?, ?, ?, ?, ?, ?, ?)',
+                            array(
+                                $omimOmekaUser->username,
+                                $omimOmekaUser->name,
+                                $omimOmekaUser->email,
+                                $omimOmekaUser->password,
+                                $omimOmekaUser->salt,
+                                1,
+                                $omimOmekaUser->role
+                            )
+                        );
+                    }
+                }
+            }
 
             // Finished - redirect to admin index
             return Redirect::to('admin')->with('success-message', 'Instanz erfolgreich angelegt.');
