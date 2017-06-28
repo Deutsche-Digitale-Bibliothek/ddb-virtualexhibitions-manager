@@ -18,4 +18,3 @@ composer.lock
 .DS_Store
 Thumbs.db
 lib/*
-data/*
