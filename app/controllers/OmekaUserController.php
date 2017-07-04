@@ -147,7 +147,7 @@ class OmekaUserController extends \BaseController {
         if (!isset($user) || empty($user)) {
             return Redirect::to('omeka-user/list')->with('error-message', $this->msg{'error'}{'user-not-found'});
         }
-        $rules = array('username' => 'required|alpha', 'email' => 'required|email');
+        $rules = array('username' => 'required|regex:/^[A-Za-z0-9\-@\._]+$/', 'email' => 'required|email');
         $messages = array();
         $validator = Validator::make($params, $rules, $messages);
         if (!$validator->passes()) {
@@ -518,7 +518,7 @@ class OmekaUserController extends \BaseController {
                 ->with('error-message', $this->msg{'error'}{'select-user'});
         }
 
-        $rules = array('username' => 'required|alpha', 'email' => 'required|email');
+        $rules = array('username' => 'required|regex:/^[A-Za-z0-9\-@\._]+$/', 'email' => 'required|email');
         $messages = array();
         $validator = Validator::make($params, $rules, $messages);
         if (!$validator->passes()) {
