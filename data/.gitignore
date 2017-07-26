@@ -2,3 +2,7 @@ install/*
 test/*
 translate/*
 workspace/*
+publish/*
+!publish/.gitkeep
+rsa/*
+!rsa/.gitkeep
