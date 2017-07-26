@@ -72,7 +72,7 @@ class UserController extends \BaseController {
         }
         if (Auth::user()->isroot != 1) {
             return Redirect::to('admin')->with('error-message',
-                'Sie haben keine Berechtigung die Ressource \'user/register\' zu verwenden.');
+                'Sie haben keine Berechtigung, die Ressource \'user/register\' zu verwenden.');
         }
         return View::make('users.register');
     }
@@ -89,7 +89,7 @@ class UserController extends \BaseController {
         }
         if (Auth::user()->isroot != 1) {
             return Redirect::to('admin')->with('error-message',
-                'Sie haben keine Berechtigung die Ressource \'user/register\' zu verwenden.');
+                'Sie haben keine Berechtigung, die Ressource \'user/register\' zu verwenden.');
         }
 
         $input = Input::all();
@@ -123,7 +123,7 @@ class UserController extends \BaseController {
         }
         if (Auth::user()->isroot != 1) {
             return Redirect::to('admin')->with('error-message',
-                'Sie haben keine Berechtigung die Ressource \'user/list\' zu verwenden.');
+                'Sie haben keine Berechtigung, die Ressource \'user/list\' zu verwenden.');
         }
         $omimusers = OmimUser::all();
         // var_dump($omimusers);
@@ -142,7 +142,7 @@ class UserController extends \BaseController {
         }
         if (Auth::user()->isroot != 1) {
             return Redirect::to('admin')->with('error-message',
-                'Sie haben keine Berechtigung die Ressource \'user/list\' zu verwenden.');
+                'Sie haben keine Berechtigung, die Ressource \'user/list\' zu verwenden.');
         }
         if (!isset($id)) {
             return Redirect::to('user/list')->with('error-message',
@@ -175,7 +175,7 @@ class UserController extends \BaseController {
         }
         if (Auth::user()->isroot != 1) {
             return Redirect::to('admin')->with('error-message',
-                'Sie haben keine Berechtigung die Ressource \'user/list\' zu verwenden.');
+                'Sie haben keine Berechtigung, die Ressource \'user/list\' zu verwenden.');
         }
         if (!isset($id)) {
             return Redirect::to('user/list')->with('error-message',
@@ -235,7 +235,7 @@ class UserController extends \BaseController {
         }
         if (Auth::user()->isroot != 1) {
             return Redirect::to('admin')->with('error-message',
-                'Sie haben keine Berechtigung die Ressource \'user/list\' zu verwenden.');
+                'Sie haben keine Berechtigung, die Ressource \'user/list\' zu verwenden.');
         }
         if (!isset($id)) {
             return Redirect::to('user/list')->with('error-message',
@@ -267,7 +267,7 @@ class UserController extends \BaseController {
         }
         if (Auth::user()->isroot != 1) {
             return Redirect::to('admin')->with('error-message',
-                'Sie haben keine Berechtigung die Ressource \'user/list\' zu verwenden.');
+                'Sie haben keine Berechtigung, die Ressource \'user/list\' zu verwenden.');
         }
         if (!isset($id)) {
             return Redirect::to('user/list')->with('error-message',
@@ -312,7 +312,7 @@ class UserController extends \BaseController {
         }
         if (Auth::user()->isroot != 1) {
             return Redirect::to('admin')->with('error-message',
-                'Sie haben keine Berechtigung die Ressource \'user/list\' zu verwenden.');
+                'Sie haben keine Berechtigung, die Ressource \'user/list\' zu verwenden.');
         }
         if (!isset($id)) {
             return Redirect::to('user/list')->with('error-message',

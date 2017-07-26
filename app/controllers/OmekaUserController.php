@@ -7,7 +7,7 @@ class OmekaUserController extends \BaseController {
         'error' => [
             'select-user'           => 'Wählen Sie einen Benutzer aus der Liste.',
             'user-not-found'        => 'Der angegebene Benutzer konnte nicht gefunden werden. Wählen Sie einen Benutzer aus der Liste.',
-            'no-prevelege'          => 'Sie haben keine Berechtigung die Ressource zu verwenden.',
+            'no-prevelege'          => 'Sie haben keine Berechtigung, die Ressource zu verwenden.',
             'username-not-unique'   => 'Dieser Benutzername existiert bereits. Änerung nicht möglich.'
         ]
     ];

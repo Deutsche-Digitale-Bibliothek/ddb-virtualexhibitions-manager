@@ -47,7 +47,7 @@ class AdminController extends \BaseController {
     {
         if (Auth::user()->isroot != 1) {
             return Redirect::to('admin')->with('error-message',
-                'Sie haben keine Berechtigung die Ressource \'admin/create\' zu verwenden.');
+                'Sie haben keine Berechtigung, die Ressource \'admin/create\' zu verwenden.');
         }
         $users = OmimOmekaUser::all();
         return View::make('admin.create', compact('users'));
@@ -63,7 +63,7 @@ class AdminController extends \BaseController {
 
         if (Auth::user()->isroot != 1) {
             return Redirect::to('admin')->with('error-message',
-                'Sie haben keine Berechtigung die Ressource \'admin/create\' zu verwenden.');
+                'Sie haben keine Berechtigung, die Ressource \'admin/create\' zu verwenden.');
         }
 
 
@@ -212,7 +212,7 @@ class AdminController extends \BaseController {
         // Only users with root privileges are allowed pubish
         if (Auth::user()->isroot != 1) {
             return Redirect::to('admin')->with('error-message',
-                'Sie haben keine Berechtigung die Ressource \'admin/create\' zu verwenden.');
+                'Sie haben keine Berechtigung, die Ressource \'admin/create\' zu verwenden.');
         }
 
         // Check if user has selected an instance
@@ -442,7 +442,7 @@ class AdminController extends \BaseController {
          */
         if (Auth::user()->isroot != 1) {
             return Redirect::to('admin')->with('error-message',
-                'Sie haben keine Berechtigung die Ressource \'admin/create\' zu verwenden.');
+                'Sie haben keine Berechtigung, die Ressource \'admin/create\' zu verwenden.');
         }
 
         /**
@@ -480,7 +480,7 @@ class AdminController extends \BaseController {
          */
         if (Auth::user()->isroot != 1) {
             return Redirect::to('admin')->with('error-message',
-                'Sie haben keine Berechtigung die Ressource \'admin/create\' zu verwenden.');
+                'Sie haben keine Berechtigung, die Ressource \'admin/create\' zu verwenden.');
         }
 
         /**
@@ -637,7 +637,7 @@ class AdminController extends \BaseController {
          */
         if (Auth::user()->isroot != 1) {
             return Redirect::to('admin')->with('error-message',
-                'Sie haben keine Berechtigung die Ressource \'admin/download\' zu verwenden.');
+                'Sie haben keine Berechtigung, die Ressource \'admin/download\' zu verwenden.');
         }
 
         /**
@@ -906,7 +906,7 @@ class AdminController extends \BaseController {
         // Only users with root privileges are allowed
         if (Auth::user()->isroot != 1) {
             return Redirect::to('admin')->with('error-message',
-                'Sie haben keine Berechtigung die Ressource \'test/ssh\' zu verwenden.');
+                'Sie haben keine Berechtigung, die Ressource \'test/ssh\' zu verwenden.');
         }
 
 

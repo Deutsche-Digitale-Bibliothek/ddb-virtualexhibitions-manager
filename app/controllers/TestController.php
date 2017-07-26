@@ -13,7 +13,7 @@ class TestController extends \BaseController {
         // Only users with root privileges are allowed pubish
         if (Auth::user()->isroot != 1) {
             return Redirect::to('admin')->with('error-message',
-                'Sie haben keine Berechtigung die Ressource \'test/ssh\' zu verwenden.');
+                'Sie haben keine Berechtigung, die Ressource \'test/ssh\' zu verwenden.');
         }
 
 
