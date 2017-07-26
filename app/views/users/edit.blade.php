@@ -40,7 +40,7 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        {{ Form::label('user-create-isroot', 'Rootrechte') }}
+                        {{ Form::label('user-create-isroot', 'Adminstratorenrechte') }}
                         <div class="input-group">
                             <span class="input-group-addon"><i class="glyphicon glyphicon-check"></i></span>
 

@@ -14,7 +14,7 @@
             <div id="collapse-{{ $omimuser->id }}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading-user-{{ $omimuser->id }}">
                 <div class="panel-body">
                     <ul class="list-unstyled">
-                        <li>Rootrechte: @if ($omimuser->isroot === '1') Ja @else Nein @endif</li>
+                        <li>Adminstratorenrechte: @if ($omimuser->isroot == '1') Ja @else Nein @endif</li>
                     </ul>
                     <div>
                         <a class="btn btn-primary" href="{{ URL::to('user/edit') }}/{{ $omimuser->id }}" role="button"><span class="glyphicon glyphicon-pencil"></span> Bearbeiten</a>
