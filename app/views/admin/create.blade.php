@@ -72,7 +72,7 @@
                     @foreach ($users as $user)
                         <tr>
                             <td>
-                                {{ Form::checkbox('user[' . $user->id . ']', 1) }}
+                                {{ Form::checkbox('user[' . $user->id . ']', 1, true) }}
                             </td>
                             <td>{{$user->username}}</td>
                             <td>{{$user->name}}</td>
