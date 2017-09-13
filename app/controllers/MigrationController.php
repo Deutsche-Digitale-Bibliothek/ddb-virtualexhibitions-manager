@@ -59,6 +59,7 @@ class MigrationController extends \BaseController {
             $this->migrateElements($va);
             $this->migrateElementTexts($va);
             $this->migratePlugins($va);
+            $this->migrateOptions($va);
         }
         $msg = $this->msg;
         return View::make('migrate.index', compact('va', 'msg'));
@@ -487,7 +488,7 @@ class MigrationController extends \BaseController {
         $this->msg['plugins'][] = 'Füge neue Plugins ein - Anzahl der Änderungen ' . $results;
 
         // add simple vocab DB table and data
-        $drop = 'DROP TABLE IF EXISTS `omeka_exhxxxx-exh' . $va->id . 'x_simple_vocab_terms`;';
+        $drop = 'DROP TABLE IF EXISTS `omeka_exh' . $va->id . '_simple_vocab_terms`;';
         $result = DB::statement($drop);
 
         $simpleVocabTbl = 'CREATE TABLE `omeka_exh' . $va->id . '_simple_vocab_terms` (
@@ -503,7 +504,60 @@ class MigrationController extends \BaseController {
         $simpleVocabData = "INSERT INTO `omeka_exh" . $va->id . "_simple_vocab_terms` (`id`, `element_id`, `terms`) VALUES
         (1, 72, '[[license:CC-PD-M1]]|||Public Domain Mark 1.0\n[[license:CC-PD-U1]]|||CC0 1.0 Universell - Public Domain Dedication\n[[license:G-RR-AF]]|||Rechte vorbehalten - Freier Zugang\n[[license:G-RR-AA]]|||Rechte vorbehalten - Zugang nach Autorisierung\n[[license:CC-BY-3.0-DEU]]|||Namensnennung 3.0 Deutschland\n[[license:CC-BY-4.0-INT]]|||Namensnennung 4.0 International\n[[license:CC-BY-SA-3.0-DEU]]|||Namensnennung - Weitergabe unter gleichen Bedingungen 3.0 Deutschland\n[[license:CC-BY-SA-4.0-INT]]|||Namensnennung - Weitergabe unter gleichen Bedingungen 4.0 International\n[[license:CC-BY-ND-3.0-DEU]]|||Namensnennung - Keine Bearbeitung 3.0 Deutschland\n[[license:CC-BY-ND-4.0-INT]]|||Namensnennung - Keine Bearbeitung 4.0 International\n[[license:CC-BY-NC-3.0-DEU]]|||Namensnennung - Nicht kommerziell 3.0 Deutschland\n[[license:CC-BY-NC-4.0-INT]]|||Namensnennung - Nicht kommerziell 4.0 International\n[[license:CC-BY-NC-SA-3.0-DEU]]|||Namensnennung - Nicht kommerziell - Weitergabe unter gleichen Bedingungen 3.0 Deutschland\n[[license:CC-BY-NC-SA-4.0-INT]]|||Namensnennung - Nicht kommerziell - Weitergabe unter gleichen Bedingungen 4.0 International\n[[license:CC-BY-NC-ND-3.0-DEU]]|||Namensnennung - Nicht kommerziell - Keine Bearbeitung 3.0 Deutschland\n[[license:CC-BY-NC-ND-4.0-INT]]|||Namensnennung - Nicht kommerziell - Keine Bearbeitung 4.0 International\n[[license:G-VW]]|||Verwaistes Werk\n[[license:G-NUG-KKN]]|||Nicht urheberrechtlich geschützt - Keine kommerzielle Nachnutzung');";
         $result = DB::statement($simpleVocabData);
-        $this->msg['plugins'][] = 'Datenbank Inmhalte anlegen für Plug "SimpleVocab" - Anzahl der Änderungen ' . $result;
+        $this->msg['plugins'][] = 'Datenbank Inhalte anlegen für Plug "SimpleVocab" - Anzahl der Änderungen ' . $result;
+
+    }
+    /**
+     * Migrate elements db table
+     * @param $va object omim exhibition db data
+     * @return void
+     */
+    public function migrateOptions($va)
+    {
+        $this->msg['options'] = array();
+        $result =  DB::update('update omeka_exh' . $va->id . '_options set value = ? where name = ?',
+            array(
+                $va->title,
+                'site_title',
+            )
+        );
+        $this->msg['options'][] = 'Setze Seitentitel (Blogtitel) - Anzahl der Änderungen ' . $result;
+
+        $result =  DB::update('update omeka_exh' . $va->id . '_options set value = ? where name = ?',
+            array(
+                'service@deutsche-digitale-bibliothek.de',
+                'administrator_email',
+            )
+        );
+        $this->msg['options'][] = 'Setze E-Mail-Adresse des Administrators - Anzahl der Änderungen ' . $result;
+
+        $result = DB::insert('insert into omeka_exh' . $va->id . '_options (name, value) values (?, ?)',
+            array(
+                'simple_vocab_files',
+                0,
+            )
+        );
+        $this->msg['options'][] = 'Setze Option für Simple Vocab PLugin - Anzahl der Änderungen ' . $result;
+
+        $results = 0;
+        $result = DB::insert('insert into omeka_exh' . $va->id . '_options (name, value) values (?, ?)',
+            array(
+                'gina_admin_mod_dashboard_panel_title',
+                'Wenn Sie Unterstützung benötigen: ',
+            )
+        );
+        $results = $results + $result;
+        $result = DB::insert('insert into omeka_exh' . $va->id . '_options (name, value) values (?, ?)',
+            array(
+                'gina_admin_mod_dashboard_panel_content',
+                '<p><a title="Kuratoren-Handbuch online" href="https://deutsche-digitale-bibliothek.github.io/ddb-virtualexhibitions-docs/" target="_blank">Benutzungs-Handbuch online</a></p>
+<h4>Ansprechpersonen:</h4>
+<p>Laura Schr&ouml;der<br /><a href="mailto:L.Schroeder@dnb.de">L.Schroeder@dnb.de</a><br />Tel.:&nbsp;<span>+49 69 1525-1793<br /></span></p>
+<p>Lisa Landes<br /><a href="mailto:L.Landes@dnb.de" target="_self">L.Landes@dnb.de</a><br />Tel.:&nbsp;<span>+49 69 1525-1797<br /><br /></span></p>',
+            )
+        );
+        $results = $results + $result;
+        $this->msg['options'][] = 'Setze Optionen für Admin Modifications Plugin - Anzahl der Änderungen ' . $results;
 
     }
 
