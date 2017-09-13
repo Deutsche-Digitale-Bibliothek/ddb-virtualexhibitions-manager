@@ -67,6 +67,7 @@ class MigrationController extends \BaseController {
         } else {
             $this->migrateElements($va);
             $this->migrateElementTexts($va);
+            $this->migrateItemTypesElements($va);
             $this->migratePlugins($va);
             $this->migrateOptions($va);
             DB::update('update omim_instances set version = ? where id = ?', array($this->omimVersion, $va->id));
@@ -360,7 +361,124 @@ class MigrationController extends \BaseController {
                 'Zusatzvermerk Metadatenfeld URL der Institution'
             )
         );
-        $this->msg['elements'][] = 'Feld "Imagemap" - Anzahl der Änderungen ' . $result;
+        $this->msg['elements'][] = 'Feld "URL der Institution" hinzugefügt - Anzahl der Änderungen ' . $result;
+        $newField = DB::select('select * from omeka_exh' . $va->id . '_elements where name = ? AND element_set_id = ?', array('URL der Institution', 3));
+        if (count($newField) > 0) {
+            $newField = $newField[0];
+            $result = DB::insert('insert into omeka_exh' . $va->id . '_item_types_elements (item_type_id, element_id, `order`) values (?, ?, ?)',
+                array(
+                    18,
+                    $newField->id,
+                    $newField->order
+                )
+            );
+            $this->msg['item_types_elements'][] = 'Feld "URL der Institution" eingetragen - Anzahl der Änderungen ' . $result;
+
+        }
+
+    }
+
+    /**
+     * Migrate elements db table
+     * @param $va object omim exhibition db data
+     * @return void
+     */
+    public function migrateItemTypesElements($va)
+    {
+        $results = 0;
+        $result = DB::update('update omeka_exh' . $va->id . '_item_types_elements set `order` = ? where item_type_id = ? AND element_id = ?',
+            array(1, 18, 52)
+        );
+        $results = $results + $result;
+        $result = DB::update('update omeka_exh' . $va->id . '_item_types_elements set `order` = ? where item_type_id = ? AND element_id = ?',
+            array(17, 18, 54)
+        );
+        $results = $results + $result;
+        $result = DB::update('update omeka_exh' . $va->id . '_item_types_elements set `order` = ? where item_type_id = ? AND element_id = ?',
+            array(16, 18, 55)
+        );
+        $results = $results + $result;
+        $result = DB::update('update omeka_exh' . $va->id . '_item_types_elements set `order` = ? where item_type_id = ? AND element_id = ?',
+            array(15, 18, 56)
+        );
+        $results = $results + $result;
+        $result = DB::update('update omeka_exh' . $va->id . '_item_types_elements set `order` = ? where item_type_id = ? AND element_id = ?',
+            array(19, 18, 57)
+        );
+        $results = $results + $result;
+        $result = DB::update('update omeka_exh' . $va->id . '_item_types_elements set `order` = ? where item_type_id = ? AND element_id = ?',
+            array(3, 18, 59)
+        );
+        $results = $results + $result;
+        $result = DB::update('update omeka_exh' . $va->id . '_item_types_elements set `order` = ? where item_type_id = ? AND element_id = ?',
+            array(10, 18, 64)
+        );
+        $results = $results + $result;
+        $result = DB::update('update omeka_exh' . $va->id . '_item_types_elements set `order` = ? where item_type_id = ? AND element_id = ?',
+            array(12, 18, 65)
+        );
+        $results = $results + $result;
+        $result = DB::update('update omeka_exh' . $va->id . '_item_types_elements set `order` = ? where item_type_id = ? AND element_id = ?',
+            array(14, 18, 67)
+        );
+        $results = $results + $result;
+        $result = DB::update('update omeka_exh' . $va->id . '_item_types_elements set `order` = ? where item_type_id = ? AND element_id = ?',
+            array(18, 18, 71)
+        );
+        $results = $results + $result;
+        $result = DB::update('update omeka_exh' . $va->id . '_item_types_elements set `order` = ? where item_type_id = ? AND element_id = ?',
+            array(22, 18, 74)
+        );
+        $results = $results + $result;
+        $result = DB::update('update omeka_exh' . $va->id . '_item_types_elements set `order` = ? where item_type_id = ? AND element_id = ?',
+            array(2, 18, 75)
+        );
+        $results = $results + $result;
+        $result = DB::update('update omeka_exh' . $va->id . '_item_types_elements set `order` = ? where item_type_id = ? AND element_id = ?',
+            array(5, 18, 76)
+        );
+        $results = $results + $result;
+        $result = DB::update('update omeka_exh' . $va->id . '_item_types_elements set `order` = ? where item_type_id = ? AND element_id = ?',
+            array(7, 18, 77)
+        );
+        $results = $results + $result;
+        $result = DB::update('update omeka_exh' . $va->id . '_item_types_elements set `order` = ? where item_type_id = ? AND element_id = ?',
+            array(8, 18, 78)
+        );
+        $results = $results + $result;
+        $result = DB::update('update omeka_exh' . $va->id . '_item_types_elements set `order` = ? where item_type_id = ? AND element_id = ?',
+            array(11, 18, 79)
+        );
+        $results = $results + $result;
+        $result = DB::update('update omeka_exh' . $va->id . '_item_types_elements set `order` = ? where item_type_id = ? AND element_id = ?',
+            array(4, 18, 80)
+        );
+        $results = $results + $result;
+        $result = DB::update('update omeka_exh' . $va->id . '_item_types_elements set `order` = ? where item_type_id = ? AND element_id = ?',
+            array(13, 18, 81)
+        );
+        $results = $results + $result;
+        $result = DB::update('update omeka_exh' . $va->id . '_item_types_elements set `order` = ? where item_type_id = ? AND element_id = ?',
+            array(20, 18, 82)
+        );
+        $results = $results + $result;
+        $result = DB::update('update omeka_exh' . $va->id . '_item_types_elements set `order` = ? where item_type_id = ? AND element_id = ?',
+            array(21, 18, 83)
+        );
+        $results = $results + $result;
+        $result = DB::update('update omeka_exh' . $va->id . '_item_types_elements set `order` = ? where item_type_id = ? AND element_id = ?',
+            array(9, 18, 72)
+        );
+        $results = $results + $result;
+        $result = DB::update('update omeka_exh' . $va->id . '_item_types_elements set `order` = ? where item_type_id = ? AND element_id = ?',
+            array(23, 18, 84)
+        );
+        $results = $results + $result;
+        $result = DB::update('update omeka_exh' . $va->id . '_item_types_elements set `order` = ? where item_type_id = ? AND element_id = ?',
+            array(6, 18, 85)
+        );
+        $results = $results + $result;
+        $this->msg['item_types_elements'][] = 'Reiehnfolge für Elemente des Objekttyps angepasst - Anzahl der Änderungen ' . $results;
     }
 
     /**
