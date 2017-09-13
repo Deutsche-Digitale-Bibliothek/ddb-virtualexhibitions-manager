@@ -50,14 +50,15 @@ class MigrationController extends \BaseController {
             $customTitle->description == 'Beschreibung Metadatenfeld Titel' &&
             $customTitle->comment == 'Zusatzvermerk Metadatenfeld Titel'
 
-            && 1 != 1
+            // && 1 != 1
 
             ) {
             return Redirect::to('admin')->with('error-message',
                  'Die von Ihnen gewählte Omeka Instanz ist bereits migriert worden.');
         } else {
-            // $this->migrateElements($va);
+            $this->migrateElements($va);
             $this->migrateElementTexts($va);
+            $this->migratePlugins($va);
         }
         $msg = $this->msg;
         return View::make('migrate.index', compact('va', 'msg'));
@@ -421,26 +422,89 @@ class MigrationController extends \BaseController {
         $linkInsts = DB::select('select * from omeka_exh' . $va->id . '_element_texts where element_id = ?', array(78));
         $results = 0;
         foreach ($linkInsts as $linkInst) {
-            $dom = new DOMDocument();
-            $dom->loadHTML($linkInst->text);
-            $tags = $dom->getElementsByTagName('a');
-            $href = '';
-            foreach ($tags as $tag) {
-                $href = $tag->getAttribute('href');
-                break;
-            }
-            if (!empty($href)) {
-                $result =  DB::update('update omeka_exh' . $va->id . '_element_texts set text = ?, html = ? where id = ?',
-                    array(
-                        $href,
-                        0,
-                        $linkInst->id
-                    )
-                );
-                $results = $results + $result;
+            if ($linkInst->text !== strip_tags($linkInst->text)) {
+                $dom = new DOMDocument();
+                $dom->loadHTML($linkInst->text);
+                $tags = $dom->getElementsByTagName('a');
+                $href = '';
+                foreach ($tags as $tag) {
+                    $href = $tag->getAttribute('href');
+                    break;
+                }
+                if (!empty($href)) {
+                    $result =  DB::update('update omeka_exh' . $va->id . '_element_texts set text = ?, html = ? where id = ?',
+                        array(
+                            $href,
+                            0,
+                            $linkInst->id
+                        )
+                    );
+                    $results = $results + $result;
+                }
             }
         }
         $this->msg['element_texts'][] = 'Texte für "Link zum Objekt bei der datengebenden Institution" angepasst - Anzahl der Änderungen ' . $results;
+    }
+
+    /**
+     * Migrate elements db table
+     * @param $va object omim exhibition db data
+     * @return void
+     */
+    public function migratePlugins($va)
+    {
+        $this->msg['plugins'] = array();
+        $result = DB::delete('delete from omeka_exh' . $va->id . '_plugins where name = ?', array('SimplePages'));
+        $this->msg['plugins'][] = 'Entferne veraltete Plugins - Anzahl der Änderungen ' . $result;
+
+        $results = 0;
+        $result = DB::insert('insert into omeka_exh' . $va->id . '_plugins (name, active, version) values (?, ?, ?)',
+            array(
+                'GinaImageConvert',
+                1,
+                '1.0.0'
+            )
+        );
+        $results = $results + $result;
+
+        $result = DB::insert('insert into omeka_exh' . $va->id . '_plugins (name, active, version) values (?, ?, ?)',
+            array(
+                'GinaAdminMod',
+                1,
+                '1.0.0'
+            )
+        );
+        $results = $results + $result;
+
+        $result = DB::insert('insert into omeka_exh' . $va->id . '_plugins (name, active, version) values (?, ?, ?)',
+            array(
+                'SimpleVocab',
+                1,
+                '2.1'
+            )
+        );
+        $results = $results + $result;
+        $this->msg['plugins'][] = 'Füge neue Plugins ein - Anzahl der Änderungen ' . $results;
+
+        // add simple vocab DB table and data
+        $drop = 'DROP TABLE IF EXISTS `omeka_exhxxxx-exh' . $va->id . 'x_simple_vocab_terms`;';
+        $result = DB::statement($drop);
+
+        $simpleVocabTbl = 'CREATE TABLE `omeka_exh' . $va->id . '_simple_vocab_terms` (
+          `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+          `element_id` int(10) unsigned NOT NULL,
+          `terms` text COLLATE utf8_unicode_ci NOT NULL,
+          PRIMARY KEY (`id`),
+          UNIQUE KEY `element_id` (`element_id`)
+        ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;';
+        $result = DB::statement($simpleVocabTbl);
+        $this->msg['plugins'][] = 'Datenbank Tabellen anlegen für Plug "SimpleVocab" - Anzahl der Änderungen ' . $result;
+
+        $simpleVocabData = "INSERT INTO `omeka_exh" . $va->id . "_simple_vocab_terms` (`id`, `element_id`, `terms`) VALUES
+        (1, 72, '[[license:CC-PD-M1]]|||Public Domain Mark 1.0\n[[license:CC-PD-U1]]|||CC0 1.0 Universell - Public Domain Dedication\n[[license:G-RR-AF]]|||Rechte vorbehalten - Freier Zugang\n[[license:G-RR-AA]]|||Rechte vorbehalten - Zugang nach Autorisierung\n[[license:CC-BY-3.0-DEU]]|||Namensnennung 3.0 Deutschland\n[[license:CC-BY-4.0-INT]]|||Namensnennung 4.0 International\n[[license:CC-BY-SA-3.0-DEU]]|||Namensnennung - Weitergabe unter gleichen Bedingungen 3.0 Deutschland\n[[license:CC-BY-SA-4.0-INT]]|||Namensnennung - Weitergabe unter gleichen Bedingungen 4.0 International\n[[license:CC-BY-ND-3.0-DEU]]|||Namensnennung - Keine Bearbeitung 3.0 Deutschland\n[[license:CC-BY-ND-4.0-INT]]|||Namensnennung - Keine Bearbeitung 4.0 International\n[[license:CC-BY-NC-3.0-DEU]]|||Namensnennung - Nicht kommerziell 3.0 Deutschland\n[[license:CC-BY-NC-4.0-INT]]|||Namensnennung - Nicht kommerziell 4.0 International\n[[license:CC-BY-NC-SA-3.0-DEU]]|||Namensnennung - Nicht kommerziell - Weitergabe unter gleichen Bedingungen 3.0 Deutschland\n[[license:CC-BY-NC-SA-4.0-INT]]|||Namensnennung - Nicht kommerziell - Weitergabe unter gleichen Bedingungen 4.0 International\n[[license:CC-BY-NC-ND-3.0-DEU]]|||Namensnennung - Nicht kommerziell - Keine Bearbeitung 3.0 Deutschland\n[[license:CC-BY-NC-ND-4.0-INT]]|||Namensnennung - Nicht kommerziell - Keine Bearbeitung 4.0 International\n[[license:G-VW]]|||Verwaistes Werk\n[[license:G-NUG-KKN]]|||Nicht urheberrechtlich geschützt - Keine kommerzielle Nachnutzung');";
+        $result = DB::statement($simpleVocabData);
+        $this->msg['plugins'][] = 'Datenbank Inmhalte anlegen für Plug "SimpleVocab" - Anzahl der Änderungen ' . $result;
+
     }
 
 }
