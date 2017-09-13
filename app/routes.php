@@ -34,3 +34,6 @@ Route::group(array('before' => 'auth'), function(){
     Route::get('omeka-user/delete/{id}', 'OmekaUserController@getDelete');
     Route::post('omeka-user/delete/{id}', 'OmekaUserController@postDelete');
 });
+Route::group(array('before' => 'auth'), function(){
+    Route::controller('migrate', 'MigrationController');
+});

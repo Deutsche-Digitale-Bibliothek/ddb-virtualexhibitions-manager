@@ -64,6 +64,7 @@
                             <a class="btn btn-success" href="{{ URL::to('admin/publish') }}?oid={{ $va->id }}" role="button"><span class="glyphicon glyphicon-cog"></span> Veröffentlichen</a>
                             <a class="btn btn-danger" href="{{ URL::to('admin/delete') }}?oid={{ $va->id }}" role="button"><span class="glyphicon glyphicon-remove"></span>  Löschen</a>
                             <a class="btn btn-primary" href="{{ URL::to('admin/download') }}?oid={{ $va->id }}" role="button"><span class="glyphicon glyphicon-download"></span> Download</a>
+                            <a class="btn btn-warning" href="{{ URL::to('migrate') }}?oid={{ $va->id }}" role="button"><span class="glyphicon glyphicon-refresh"></span>  Migrieren</a>
                             @if ($va->last_published_at && $va->last_unpublished_at < $va->last_published_at)
                             @foreach ($configOmim['remote'] as $remoteSrvNo => $remoteSrvConfig)
                             <a class="btn btn-info pull-right" href="{{ $remoteSrvConfig['production']['http']['url'] }}/{{ $va->slug }}" role="button" target="_blank" style="margin-left:5px;"><span class="glyphicon glyphicon-search"></span> Produktionsserver Nr. {{ $remoteSrvNo }}</a>
