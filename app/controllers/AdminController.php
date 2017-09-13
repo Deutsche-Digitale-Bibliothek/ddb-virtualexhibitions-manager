@@ -2,6 +2,9 @@
 
 class AdminController extends \BaseController {
 
+
+    public $omimVersion = '1.0.0';
+
     /**
      * Display a summary of omeka insatnces
      *
@@ -9,7 +12,7 @@ class AdminController extends \BaseController {
      */
     public function getIndex()
     {
-
+        $this->checkOmimInstanceTbl();
         switch (Input::get('sort-list')) {
             case 'title-asc':
                 $orderBy = array('field' => 'title', 'direction' => 'ASC');
@@ -35,6 +38,16 @@ class AdminController extends \BaseController {
         $omiminstance = OmimInstance::orderBy($orderBy['field'], $orderBy['direction'])->get();
         $configOmim = Config::get('omim');
         return View::make('admin.index', compact('omiminstance', 'configOmim'));
+    }
+
+    public function checkOmimInstanceTbl()
+    {
+        $omiminstancesStructure = DB::select('DESCRIBE omim_instances');
+        if (!array_key_exists(12, $omiminstancesStructure)
+            || (isset($omiminstancesStructure[12]) && $omiminstancesStructure{12}->Field !== 'version')) {
+
+            DB::statement("ALTER TABLE `omim_instances` ADD `version` varchar(255) COLLATE 'utf8_unicode_ci' NULL;");
+        }
     }
 
 
@@ -111,6 +124,7 @@ class AdminController extends \BaseController {
             $instance->langauge_fallback = 1;
             $instance->fk_root_instance_id = 0;
             $instance->state = 'active';
+            $instance->version = $this->omimVersion;
             $instance->save();
 
             // Gather some paths and vars

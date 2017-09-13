@@ -3,6 +3,7 @@
 class MigrationController extends \BaseController {
 
 
+    public $omimVersion = '1.0.0';
     public $msg = array();
 
     /**
@@ -53,13 +54,23 @@ class MigrationController extends \BaseController {
             // && 1 != 1
 
             ) {
-            return Redirect::to('admin')->with('error-message',
-                 'Die von Ihnen gewählte Omeka Instanz ist bereits migriert worden.');
+
+            if ($va->version == $this->omimVersion) {
+                return Redirect::to('admin')->with('error-message',
+                     'Die von Ihnen gewählte Omeka Instanz ist bereits migriert worden.');
+            } else {
+                DB::update('update omim_instances set version = ? where id = ?', array($this->omimVersion, $va->id));
+                return Redirect::to('admin')->with('success-message',
+                     'Die von Ihnen gewählte Omeka Instanz ist migriert.');
+            }
+
         } else {
             $this->migrateElements($va);
             $this->migrateElementTexts($va);
             $this->migratePlugins($va);
             $this->migrateOptions($va);
+            DB::update('update omim_instances set version = ? where id = ?', array($this->omimVersion, $va->id));
+
         }
         $msg = $this->msg;
         return View::make('migrate.index', compact('va', 'msg'));
