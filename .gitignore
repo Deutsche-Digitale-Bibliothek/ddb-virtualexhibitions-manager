@@ -10,6 +10,7 @@ public/*
 !public/index.php
 !public/robots.txt
 app/config/*
+!app/config/omim.sample.php
 composer.phar
 composer.lock
 .env.*.php

@@ -292,7 +292,7 @@ class AdminController extends \BaseController {
             foreach ($configOmim['remote'] as $remoteSrvNo => $remoteSrvConfig) {
                 $productionDocRoot[$remoteSrvNo] = rtrim($remoteSrvConfig['production']['ssh']['docroot'], '\\/');
                 $productionInstancePath[$remoteSrvNo] = $productionDocRoot[$remoteSrvNo] . DIRECTORY_SEPARATOR . $va->slug;
-                $productionDeployArchive[$remoteSrvNo] = $remoteSrvConfig['production']['ssh']['datadir'] . DIRECTORY_SEPARATOR . 'deploy.tar.gz';
+                $productionDeployArchive[$remoteSrvNo] = rtrim($remoteSrvConfig['production']['ssh']['datadir'], '\\/') . DIRECTORY_SEPARATOR . 'deploy.tar.gz';
 
                 $sshConnections[$remoteSrvNo] = $this->connectToProductionServer($remoteSrvConfig);
                 if (!$sshConnections[$remoteSrvNo]) {
@@ -301,7 +301,36 @@ class AdminController extends \BaseController {
                         . $remoteSrvConfig['production']['ssh']['host']
                         . 'konnte nicht hergestellt werden.');
                 }
+                $sftpConnections[$remoteSrvNo] = $this->sftpConnectToProductionServer($remoteSrvConfig);
             }
+
+            /**
+             * Check deploy.tar.gz skeleton package
+             * ************************************
+             */
+            $localDeploymentSkeleton = base_path() . DIRECTORY_SEPARATOR
+                . 'data' . DIRECTORY_SEPARATOR
+                . 'production'. DIRECTORY_SEPARATOR
+                . 'deploy.tar.gz';
+             $localDeploymentSkeletonMd5 = md5_file($localDeploymentSkeleton);
+             foreach ($sshConnections as $remoteSrvNo => $ssh) {
+                $productionDeploymentSkeletonMd5 = $ssh->exec('md5sum ' . $productionDeployArchive[$remoteSrvNo]);
+                $productionDeploymentSkeletonMd5 = substr(
+                    $productionDeploymentSkeletonMd5, 0, strpos($productionDeploymentSkeletonMd5, ' ')
+                );
+                if ($productionDeploymentSkeletonMd5 !== $localDeploymentSkeletonMd5) {
+                    $updateSkeleton = $sftpConnections[$remoteSrvNo]->put(
+                        $productionDeployArchive[$remoteSrvNo],
+                        $localDeploymentSkeleton,
+                        1
+                    );
+                    if ($updateSkeleton != true) {
+                        return Redirect::to('admin')->with('error-message',
+                            'Es gab Probleme der Aktualisierung des Standard-Archivs ' .
+                            'auf Produktionserver Nr.' . $remoteSrvNo . '.');
+                    }
+                }
+             }
 
             /**
              * Perpare deployment package
@@ -315,9 +344,16 @@ class AdminController extends \BaseController {
             }
 
             // generate dump with the DB tables
+            $localDbSocket = ' ';
+            if (isset($configLocalDb['connections']['mysql']['unix_socket'])
+                && !empty($configLocalDb['connections']['mysql']['unix_socket'])) {
+                $localDbSocket = ' --socket='
+                    . $configLocalDb['connections']['mysql']['unix_socket']
+                    . ' ';
+            }
             exec('mysqldump -u' . $configLocalDb['connections']['mysql']['username']
                 . ' -p' . $configLocalDb['connections']['mysql']['password']
-                . ' --socket=' . $configLocalDb['connections']['mysql']['unix_socket'] . ' '
+                . $localDbSocket
                 . $configLocalDb['connections']['mysql']['database'] . ' '
                 . implode(' ', $dbtables) . ' > ' . $dbDumpFile);
             chmod($dbDumpFile, 0664);
@@ -381,6 +417,13 @@ class AdminController extends \BaseController {
              */
             foreach ($sshConnections as $remoteSrvNo => $ssh) {
 
+                // Delete destination folder (slug) on remote server if it exists.
+                $checkTargetDir = $ssh->exec('if test -d ' . $productionInstancePath[$remoteSrvNo] . '; then echo "ok"; else echo "no"; fi');
+                $checkTargetDir = str_replace(array("\r", "\n"), '', $checkTargetDir);
+                if ($checkTargetDir == 'ok') {
+                    $ssh->exec('rm -rf ' . $productionInstancePath[$remoteSrvNo]);
+                }
+
                 // Make destination folder (slug) on remote server
                 $ssh->exec('mkdir -m 775 ' . $productionInstancePath[$remoteSrvNo]);
 
@@ -391,43 +434,65 @@ class AdminController extends \BaseController {
                     . ' ' . $productionInstancePath[$remoteSrvNo]);
 
                 // Upload files to remote server
-                exec('rsync --numeric-ids -ze "ssh -p'
-                    . $configOmim['remote'][$remoteSrvNo]['production']['ssh']['port']
-                    . ' -i ' . $configOmim['remote'][$remoteSrvNo]['production']['ssh']['key']
-                    . '" ' . $packageFile . ' '
-                    . $configOmim['remote'][$remoteSrvNo]['production']['ssh']['username'] . '@'
-                    . $configOmim['remote'][$remoteSrvNo]['production']['ssh']['host']
-                    . ':' . $productionInstancePath[$remoteSrvNo]);
+                // exec('rsync --numeric-ids -ze "ssh -p'
+                //     . $configOmim['remote'][$remoteSrvNo]['production']['ssh']['port']
+                //     . ' -i ' . $configOmim['remote'][$remoteSrvNo]['production']['ssh']['key']
+                //     . '" ' . $packageFile . ' '
+                //     . $configOmim['remote'][$remoteSrvNo]['production']['ssh']['username'] . '@'
+                //     . $configOmim['remote'][$remoteSrvNo]['production']['ssh']['host']
+                //     . ':' . $productionInstancePath[$remoteSrvNo]);
 
-                // Extract files on remote server
-                $ssh->exec('tar -xzf ' . $productionInstancePath[$remoteSrvNo] . DIRECTORY_SEPARATOR
-                    . 'files-' . $startPublishTime . '.tar.gz'
-                    . ' -C ' . $productionInstancePath[$remoteSrvNo]);
+                // We rather use SFTP than direct rsync, as user privileges are easier to handle with SFTP.
+                // With rsync the PHP/Apache user would need the rights to do rsync ...
+                $uploadMainFile = $sftpConnections[$remoteSrvNo]->put(
+                    $productionInstancePath[$remoteSrvNo] . DIRECTORY_SEPARATOR . 'files-' . $startPublishTime . '.tar.gz',
+                    $packageFile,
+                    1
+                );
 
-                // Read db dump into remote DB
-                $ssh->exec('mysql -u'
-                    . $configOmim['remote'][$remoteSrvNo]['production']['db']['username'] . ' -p'
-                    . $configOmim['remote'][$remoteSrvNo]['production']['db']['password']  . ' -h '
-                    . $configOmim['remote'][$remoteSrvNo]['production']['db']['host']  . ' --socket='
-                    . $configOmim['remote'][$remoteSrvNo]['production']['db']['unix_socket'] . ' '
-                    . $configOmim['remote'][$remoteSrvNo]['production']['db']['database'] . ' < '
-                    . $productionInstancePath[$remoteSrvNo] . DIRECTORY_SEPARATOR . 'db-dump'
-                    . DIRECTORY_SEPARATOR . 'db-' . $va->slug . '-' . $startPublishTime . '.sql');
+                if ($uploadMainFile != true) {
+                    return Redirect::to('admin')->with('error-message',
+                        'Es gab Probleme beim Upload der Instanz auf den Produktionserver Nr.' . $remoteSrvNo . '.');
+                } else {
 
-                // Move db.ini file on remote server
-                $ssh->exec('mv ' . $productionInstancePath[$remoteSrvNo] . DIRECTORY_SEPARATOR
-                    . 'db-dump' . DIRECTORY_SEPARATOR . 'db-' . $va->slug . '-'
-                    . $startPublishTime . '.ini' . $remoteSrvNo . ' ' . $productionInstancePath[$remoteSrvNo]
-                    . DIRECTORY_SEPARATOR . 'db.ini');
+                    // Extract files on remote server
+                    $ssh->exec('tar -xzf ' . $productionInstancePath[$remoteSrvNo] . DIRECTORY_SEPARATOR
+                        . 'files-' . $startPublishTime . '.tar.gz'
+                        . ' -C ' . $productionInstancePath[$remoteSrvNo]);
 
-                // Move .htaccess file on remote server
-                $ssh->exec('mv ' . $productionInstancePath[$remoteSrvNo] . DIRECTORY_SEPARATOR
-                    . 'db-dump' . DIRECTORY_SEPARATOR . $va->slug . '-'
-                    . $startPublishTime . '.htaccess ' . $productionInstancePath[$remoteSrvNo]
-                    . DIRECTORY_SEPARATOR . '.htaccess');
+                    // Read db dump into remote DB
+                    $remoteDbSocket = ' ';
+                    if (isset($configOmim['remote'][$remoteSrvNo]['production']['db']['unix_socket'])
+                        && !empty($configOmim['remote'][$remoteSrvNo]['production']['db']['unix_socket'])) {
+                        $remoteDbSocket = ' --socket=' . $configOmim['remote'][$remoteSrvNo]['production']['db']['unix_socket'] . ' ';
+                    }
+                    $ssh->exec('mysql -u'
+                        . $configOmim['remote'][$remoteSrvNo]['production']['db']['username'] . ' -p'
+                        . $configOmim['remote'][$remoteSrvNo]['production']['db']['password']  . ' -h '
+                        . $configOmim['remote'][$remoteSrvNo]['production']['db']['host']
+                        . $remoteDbSocket
+                        . $configOmim['remote'][$remoteSrvNo]['production']['db']['database'] . ' < '
+                        . $productionInstancePath[$remoteSrvNo] . DIRECTORY_SEPARATOR . 'db-dump'
+                        . DIRECTORY_SEPARATOR . 'db-' . $va->slug . '-' . $startPublishTime . '.sql');
 
-                // Clean up remote server
-                $ssh->exec('rm -rf ' . $productionInstancePath[$remoteSrvNo] . DIRECTORY_SEPARATOR . 'db-dump');
+                    // Move db.ini file on remote server
+                    $ssh->exec('mv ' . $productionInstancePath[$remoteSrvNo] . DIRECTORY_SEPARATOR
+                        . 'db-dump' . DIRECTORY_SEPARATOR . 'db-' . $va->slug . '-'
+                        . $startPublishTime . '.ini' . $remoteSrvNo . ' ' . $productionInstancePath[$remoteSrvNo]
+                        . DIRECTORY_SEPARATOR . 'db.ini');
+
+                    // Move .htaccess file on remote server
+                    $ssh->exec('mv ' . $productionInstancePath[$remoteSrvNo] . DIRECTORY_SEPARATOR
+                        . 'db-dump' . DIRECTORY_SEPARATOR . $va->slug . '-'
+                        . $startPublishTime . '.htaccess ' . $productionInstancePath[$remoteSrvNo]
+                        . DIRECTORY_SEPARATOR . '.htaccess');
+
+                    // Clean up remote server
+                    $ssh->exec('rm -rf ' . $productionInstancePath[$remoteSrvNo] . DIRECTORY_SEPARATOR . 'db-dump');
+                    $ssh->exec('rm ' . $productionInstancePath[$remoteSrvNo] . DIRECTORY_SEPARATOR . 'files-' . $startPublishTime . '.tar.gz');
+
+                }
+
 
             }
 
@@ -883,6 +948,47 @@ class AdminController extends \BaseController {
         //     return $ssh;
 
         // } else
+
+        if (array_key_exists('key', $configOmim['production']['ssh']) &&
+            !empty($configOmim['production']['ssh']['key'])) {
+
+            $key = new Crypt_RSA();
+
+            if (array_key_exists('keyphrase', $configOmim['production']['ssh']) &&
+            !empty($configOmim['production']['ssh']['keyphrase'])) {
+
+                $key->setPassword($configOmim['production']['ssh']['keyphrase']);
+            }
+
+            $key->loadKey(file_get_contents($configOmim['production']['ssh']['key']));
+
+            if (!$ssh->login($configOmim['production']['ssh']['username'], $key)) {
+
+                return false;
+            }
+
+            return $ssh;
+
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * SFTP connect to production server
+     *
+     * @param    array     production server config array
+     * @return   object    ssh object or false on failure
+     */
+    protected function sftpConnectToProductionServer($configOmim)
+    {
+        if (!is_array($configOmim) || !array_key_exists('production', $configOmim) ||
+            !array_key_exists('ssh', $configOmim['production'])) {
+
+            return false;
+        }
+
+        $ssh = new Net_SFTP($configOmim['production']['ssh']['host'], $configOmim['production']['ssh']['port']);
 
         if (array_key_exists('key', $configOmim['production']['ssh']) &&
             !empty($configOmim['production']['ssh']['key'])) {
