@@ -1,4 +1,4 @@
-# ddb-virtualexhibitions-manager
+# DDB Virtualexhibitions Manager (OMIM)
 
 Multi instance manager for the virtual exhibitions of Deutsche Digitale Bibliothek
 
@@ -10,4 +10,4 @@ The Multi instance manager for the virtual exhibitions uses the [Laravel PHP Fra
 
 ### License
 
-The Multi instance manager for the virtual exhibitions is open-sourced software licensed under the [MIT license](http://opensource.org/licenses/MIT)
+The Multi instance manager for the virtual exhibitions is open-sourced software licensed under the [Apache License, Version 2.0](https://opensource.org/licenses/Apache-2.0)
