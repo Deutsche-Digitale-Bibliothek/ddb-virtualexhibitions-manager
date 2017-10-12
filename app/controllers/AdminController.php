@@ -1040,12 +1040,15 @@ class AdminController extends \BaseController {
          * init ssh connections.
          */
         foreach ($configOmim['remote'] as $remoteSrvNo => $remoteSrvConfig) {
-            echo 'Initialisiere Verbindung zu Remote Server Nr. '  . $remoteSrvNo . ', Host ' . $remoteSrvConfig['production']['ssh']['host'] . "<br>\n";
+            echo 'Initialisiere Verbindung zu Remote Server Nr. '  . $remoteSrvNo
+                . ', Host ' . $remoteSrvConfig['production']['ssh']['host'] . "<br>\n";
+
             $sshConnections[$remoteSrvNo] = $this->connectTestToProductionServer($remoteSrvConfig);
+
             if (!$sshConnections[$remoteSrvNo]) {
                 die('Verbindung zum Productionsserver '
                     . $remoteSrvConfig['production']['ssh']['host']
-                    . 'konnte nicht hergestellt werden.');
+                    . ' konnte nicht hergestellt werden.');
             } else {
                 echo 'pwd Kommando auf remote server: ' . "<br>\n";
                 echo $sshConnections{$remoteSrvNo}->exec('pwd') . "<br>\n";
@@ -1085,6 +1088,8 @@ class AdminController extends \BaseController {
                  echo 'Fehler im RSA Schüssel! - Schlüssel konnte nicht geladen werden.' . "<br>\n";
                  return false;
             }
+
+            echo 'Versuche Login ...' . "<br>\n";
 
             if (!$ssh->login($configOmim['production']['ssh']['username'], $key)) {
                 echo 'Login fehlgeschlagen.' . "<br>\n";
