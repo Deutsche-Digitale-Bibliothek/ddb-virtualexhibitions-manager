@@ -1,5 +1,5 @@
 <?php
-$threshold = 1 * 24 * 60 *60; // a day
+$threshold = 1 * 24 * 60 * 60; // a day
 
 $baseDir = dirname(__FILE__);
 $downloadsDir = $baseDir . DIRECTORY_SEPARATOR
