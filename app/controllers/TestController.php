@@ -27,7 +27,7 @@ class TestController extends \BaseController {
          * init ssh connections.
          */
         foreach ($configOmim['remote'] as $remoteSrvNo => $remoteSrvConfig) {
-            echo 'Initialisiere Verbindung zu Remote Server Nr. ' $remoteSrvNo . ', Host ' . $remoteSrvConfig['production']['ssh']['host'] . "<br>\n";
+            echo 'Initialisiere Verbindung zu Remote Server Nr. ' . $remoteSrvNo . ', Host ' . $remoteSrvConfig['production']['ssh']['host'] . "<br>\n";
             $sshConnections[$remoteSrvNo] = $this->connectToProductionServer($remoteSrvConfig);
             if (!$sshConnections[$remoteSrvNo]) {
                 die('Verbindung zum Productionsserver '

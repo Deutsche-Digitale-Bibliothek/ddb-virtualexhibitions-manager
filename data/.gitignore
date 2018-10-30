@@ -6,3 +6,5 @@ publish/*
 !publish/.gitkeep
 rsa/*
 !rsa/.gitkeep
+test-video.php
+data/db/backup/*
