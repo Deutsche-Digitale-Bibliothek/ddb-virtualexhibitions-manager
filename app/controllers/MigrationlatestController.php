@@ -37,14 +37,7 @@ class MigrationlatestController extends \BaseController {
         // Check for necessary migrations
         $this->migrateOmekaUsers($va);
 
-
-        // if (!array_key_exists(12, $omiminstancesStructure)
-        //     || (isset($omiminstancesStructure[12]) && $omiminstancesStructure{12}->Field !== 'version')) {
-
-        //     DB::statement("ALTER TABLE `omim_instances` ADD `version` varchar(255) COLLATE 'utf8_unicode_ci' NULL;");
-        // }
-        // $customTitle = DB::select('select * from omeka_exh' . $va->id . '_elements where id = ?', array(52));
-
+        // Manage migration messages
         if (empty($this->msg)) {
             $this->msg['Alle Datenbanktabellen'][] = '<span class="text-success glyphicon glyphicon-ok"></span> Keine Änderungen vorgenommen, Datenbank ist aktuell.';
         }
