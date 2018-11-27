@@ -10,4 +10,4 @@ The Multi instance manager for the virtual exhibitions uses the [Laravel PHP Fra
 
 ### License
 
-The Multi instance manager for the virtual exhibitions is open-sourced software licensed under the [Apache License, Version 2.0](https://opensource.org/licenses/Apache-2.0)
+The Multi instance manager for the virtual exhibitions is open-sourced software licensed under the [GNU GENERAL PUBLIC LICENSE Version 3](http://www.gnu.de/documents/gpl-3.0.en.html)
