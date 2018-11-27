@@ -10,19 +10,7 @@ public/*
 !public/index.php
 !public/robots.txt
 app/config/*
-# !app/config/app.php
-# !app/config/auth.php
-# !app/config/cache.php
-# !app/config/compile.php
-# !app/config/database.php
-# !app/config/mail.php
 !app/config/omim.sample.php
-# !app/config/queue.php
-# !app/config/remote.php
-# !app/config/services.php
-# !app/config/session.php
-# !app/config/view.php
-# !app/config/workbench.php
 composer.phar
 composer.lock
 .env.*.php
