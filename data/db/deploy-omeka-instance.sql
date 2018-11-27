@@ -426,6 +426,7 @@ CREATE TABLE `omeka_exhxxxx-exhibit-number-xxxx_users` (
   `salt` varchar(16) COLLATE utf8_unicode_ci DEFAULT NULL,
   `active` tinyint(4) NOT NULL,
   `role` varchar(40) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'default',
+  `confirm_use` tinyint(4) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `username` (`username`),
   KEY `active_idx` (`active`)

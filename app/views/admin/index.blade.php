@@ -61,6 +61,7 @@
                         <div>
                             <a class="btn btn-info" href="/{{ $va->slug }}" role="button"><span class="glyphicon glyphicon-search"></span> zur Ausstellung</a>
                             <a class="btn btn-primary" href="/{{ $va->slug }}/admin" role="button"><span class="glyphicon glyphicon-pencil"></span> Administrieren</a>
+                            <a class="btn btn-warning" href="{{ URL::to('migratelatest') }}?oid={{ $va->id }}" role="button"><span class="glyphicon glyphicon-wrench"></span> Migrieren</a>
                             <a class="btn btn-success" href="{{ URL::to('admin/publish') }}?oid={{ $va->id }}" role="button"><span class="glyphicon glyphicon-cog"></span> Veröffentlichen</a>
                             <a class="btn btn-danger" href="{{ URL::to('admin/delete') }}?oid={{ $va->id }}" role="button"><span class="glyphicon glyphicon-remove"></span>  Löschen</a>
                             <a class="btn btn-primary" href="{{ URL::to('admin/download') }}?oid={{ $va->id }}" role="button"><span class="glyphicon glyphicon-download"></span> Download</a>

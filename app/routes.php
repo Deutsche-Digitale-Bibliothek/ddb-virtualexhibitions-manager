@@ -37,3 +37,6 @@ Route::group(array('before' => 'auth'), function(){
 Route::group(array('before' => 'auth'), function(){
     Route::controller('migrate', 'MigrationController');
 });
+Route::group(array('before' => 'auth'), function(){
+    Route::controller('migratelatest', 'MigrationlatestController');
+});

@@ -1,0 +1,79 @@
+<?php
+
+class MigrationlatestController extends \BaseController {
+
+
+    public $omimVersion = '1.0.0';
+    public $msg = array();
+
+    /**
+     * Migrate to current version
+     *
+     * @return Response
+     */
+    public function getIndex()
+    {
+
+        // Only users with root privileges are allowed to migrate
+        if (Auth::user()->isroot != 1) {
+            return Redirect::to('admin')->with('error-message',
+                'Sie haben keine Berechtigung, die Ressource \'admin/create\' zu verwenden.');
+        }
+
+        // Check if user has selected an instance
+        $oid = (int) Input::get('oid');
+        if (!isset($oid) || empty($oid)) {
+            return Redirect::to('admin')->with('error-message',
+                'Bitte wählen Sie eine Ausstellung, die Sie migrieren möchten.');
+        }
+
+        // Check if the instance is in the DB
+        $va = OmimInstance::find($oid);
+        if (!isset($va) || empty($va)) {
+             return Redirect::to('admin')->with('error-message',
+                 'Die von Ihnen gewählte Omeka Instanz existiert nicht in der Datenbank.');
+        }
+
+        // Check for necessary migrations
+        $this->migrateOmekaUsers($va);
+
+
+        // if (!array_key_exists(12, $omiminstancesStructure)
+        //     || (isset($omiminstancesStructure[12]) && $omiminstancesStructure{12}->Field !== 'version')) {
+
+        //     DB::statement("ALTER TABLE `omim_instances` ADD `version` varchar(255) COLLATE 'utf8_unicode_ci' NULL;");
+        // }
+        // $customTitle = DB::select('select * from omeka_exh' . $va->id . '_elements where id = ?', array(52));
+
+        if (empty($this->msg)) {
+            $this->msg['Alle Datenbanktabellen'][] = '<span class="text-success glyphicon glyphicon-ok"></span> Keine Änderungen vorgenommen, Datenbank ist aktuell.';
+        }
+        $msg = $this->msg;
+        return View::make('migratelatest.index', compact('va', 'msg'));
+    }
+
+    /**
+     * migrate Omeka users db tbl
+     *
+     * @param $va object omim exhibition db data
+     * @return void
+     */
+    public function migrateOmekaUsers($va)
+    {
+        $omekausersStructure = DB::select('DESCRIBE omeka_exh' . $va->id . '_users');
+        if (!isset($omekausersStructure[8]) || $omekausersStructure[8]->Field !== 'confirm_use') {
+            try {
+                $result = DB::statement('ALTER TABLE `omeka_exh' . $va->id . '_users` ADD `confirm_use` tinyint(4) NOT NULL DEFAULT \'0\' AFTER `role`');
+            } catch (\Throwable $th) {
+                $result = $th;
+            }
+            $resmsg = ($result === true)?
+                '<span class="text-success glyphicon glyphicon-ok"></span>' :
+                '<span class="text-danger glyphicon glyphicon-exclamation-sign"></span> ' .
+                '<strong>Etwas stimmt nicht!</strong> Rückgabe Wert: <div>' . $result . '</div>';
+            $this->msg['Tabelle omeka_users'][] = 'Feld "confirm_use" hinzufügen: ' . $resmsg;
+        }
+    }
+
+
+}
