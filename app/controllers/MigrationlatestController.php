@@ -56,7 +56,7 @@ class MigrationlatestController extends \BaseController {
         $omekausersStructure = DB::select('DESCRIBE omeka_exh' . $va->id . '_users');
         if (!isset($omekausersStructure[8]) || $omekausersStructure[8]->Field !== 'confirm_use') {
             try {
-                $result = DB::statement('ALTER TABLE `omeka_exh' . $va->id . '_users` ADD `confirm_use` tinyint(4) NOT NULL DEFAULT \'0\' AFTER `role`');
+                $result = DB::statement('ALTER TABLE `omeka_exh' . $va->id . '_users` ADD `confirm_use` tinyint(4) NULL DEFAULT \'0\' AFTER `role`');
             } catch (\Throwable $th) {
                 $result = $th;
             }
