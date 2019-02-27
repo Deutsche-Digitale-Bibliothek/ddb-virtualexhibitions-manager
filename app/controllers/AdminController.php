@@ -63,7 +63,9 @@ class AdminController extends \BaseController {
                 'Sie haben keine Berechtigung, die Ressource \'admin/create\' zu verwenden.');
         }
         $users = OmimOmekaUser::all();
-        return View::make('admin.create', compact('users'));
+        $colorPalettes = OmimExhibitColorPalette::all();
+        // var_dump($colorPalettes);
+        return View::make('admin.create', compact('users', 'colorPalettes'));
     }
 
     /**
@@ -125,12 +127,20 @@ class AdminController extends \BaseController {
             $instance->fk_root_instance_id = 0;
             $instance->state = 'active';
             $instance->version = $this->omimVersion;
+            $instance->exhibit_type	= $input['exhibit_type'];
+            if (isset($input['color_palette']) && !empty($input['color_palette'])) {
+                $instance->color_palette = $input['color_palette'];
+            }
             $instance->save();
 
             // Gather some paths and vars
             $docRoot = rtrim($_SERVER['DOCUMENT_ROOT'], '\\/');
             $dbDataPath = realpath(base_path() . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'db');
-            $deployArchive = base_path() . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'deploy.tar.gz';
+            if (isset($input['exhibit_type']) && $input['exhibit_type'] === 'litfass') {
+                $deployArchive = base_path() . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'deploy_lf.tar.gz';
+            } else {
+                $deployArchive = base_path() . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'deploy.tar.gz';
+            }
             $configOmim = Config::get('omim');
             $configLocalDb = Config::get('database');
 
@@ -168,22 +178,44 @@ class AdminController extends \BaseController {
             file_put_contents($docRoot . DIRECTORY_SEPARATOR . $slug . DIRECTORY_SEPARATOR . '.htaccess', $htaccessCurrent);
 
             // Generate and seed mysql tables with default contents
-            $dbData = file_get_contents($dbDataPath . DIRECTORY_SEPARATOR . 'deploy-omeka-instance.sql');
             $exhibitSlug = $this->strToSafe($instance->title);
-            $search = array(
-                'xxxx-exhibit-number-xxxx',
-                'xxxx-exhibit-title-xxxx',
-                'xxxx-exhibit-description-xxxx',
-                'xxxx-exhibit-slug-xxxx',
-                'xxxx-instance-slug-xxxx'
-            );
-            $replace = array(
-                $instance->id,
-                $instance->title,
-                $instance->subtitle,
-                strtolower($exhibitSlug),
-                $slug
-            );
+            if (isset($input['exhibit_type']) && $input['exhibit_type'] === 'litfass') {
+                $dbData = file_get_contents($dbDataPath . DIRECTORY_SEPARATOR . 'deploy-omeka-instance-lf.sql');
+                $search = array(
+                    'xxxx-exhibit-number-xxxx',
+                    'xxxx-exhibit-title-xxxx',
+                    'xxxx-exhibit-description-xxxx',
+                    'xxxx-exhibit-slug-xxxx',
+                    'xxxx-instance-slug-xxxx',
+                    'xxxx-exhibit-date-xxxx',
+                    'xxxx-exhibit-colorpalette-xxxx'
+                );
+                $replace = array(
+                    $instance->id,
+                    $instance->title,
+                    $instance->subtitle,
+                    strtolower($exhibitSlug),
+                    $slug,
+                    date('Y-m-d H:i:s'),
+                    $instance->color_palette
+                );
+            } else {
+                $dbData = file_get_contents($dbDataPath . DIRECTORY_SEPARATOR . 'deploy-omeka-instance.sql');
+                $search = array(
+                    'xxxx-exhibit-number-xxxx',
+                    'xxxx-exhibit-title-xxxx',
+                    'xxxx-exhibit-description-xxxx',
+                    'xxxx-exhibit-slug-xxxx',
+                    'xxxx-instance-slug-xxxx'
+                );
+                $replace = array(
+                    $instance->id,
+                    $instance->title,
+                    $instance->subtitle,
+                    strtolower($exhibitSlug),
+                    $slug
+                );
+            }
             $dbStatement = str_replace($search, $replace, $dbData);
             DB::connection()->getPdo()->exec($dbStatement);
 

@@ -9,3 +9,4 @@ rsa/*
 !rsa/.gitkeep
 test-video.php
 data/db/backup/*
+temp

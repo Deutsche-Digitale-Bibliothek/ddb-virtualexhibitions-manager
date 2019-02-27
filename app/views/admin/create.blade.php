@@ -21,6 +21,20 @@
                 @endif
 
                 <div class="form-group">
+                    {{ Form::label('omim-create-instance-type', 'Typ der Ausstellung') }}
+                    {{ Form::select('exhibit_type',
+                        array(
+                            'leporello' => 'Leporello (klassische Ausstellung)',
+                            'litfass' => 'Litfaß extern (Single Page Ausstellung)'),
+                        null,
+                        array(
+                            'id' => 'omim-create-instance-type',
+                            'class' => 'form-control'
+                        )
+                    ) }}
+                    <span class="help-block">Wählen Sie den Typ der Ausstellung.<br><span class="text-danger">Achtung, diese Angabe kann später nicht verändert werden.</span></span>
+                </div>
+                <div class="form-group">
                     {{ Form::label('omim-create-instance-title', 'Titel der Ausstellung') }}
                     {{ Form::text('title', null, array(
                         'id' => 'omim-create-instance-title',
@@ -58,6 +72,7 @@
                 </div>
 
                 <h4>Standardbenutzer wählen</h4>
+
                 <table class="table">
                     <thead>
                         <tr>
@@ -83,10 +98,61 @@
                     </tbody>
                 </table>
 
+                <div id="colorPalette" style="padding-top:15px;">
+                    <h4>Farbpalette wählen</h4>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th><i class="glyphicon glyphicon-check"></th>
+                                <th>Palette</th>
+                                <th>Farben</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <?php $currentPalette = ''; ?>
+                        @foreach ($colorPalettes as $colorPalette)
+                            @if ($colorPalette->palette !== $currentPalette)
+                                @if ('' !== $currentPalette)
+                                </td></tr>
+                                @endif
+                            <tr>
+                                <td>
+                                    {{ Form::radio('color_palette', $colorPalette->palette) }}
+                                </td>
+                                <td>{{$colorPalette->palette}}</td>
+                                <td>
+                                <?php $currentPalette = $colorPalette->palette; ?>
+                            @endif
+                                <div class="colorpalette-color"
+                                    style="background-color:{{$colorPalette->hex}};color:#@if ($colorPalette->type === 'dark')fff @else 000 @endif">
+                                    {{$colorPalette->color}}
+                                </div>
+                        @endforeach
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
                 <div class="submit-group pull-right">
                     {{ Form::button('Erzeugen', array('class' => 'btn btn-success', 'type' => 'submit')) }}
                 </div>
                 {{ Form::close() }}
             </div>
         </div>
+@stop
+@section('page-bottom')
+<script>
+if ($("#omim-create-instance-type").val() !== 'litfass') {
+    $('#colorPalette').css('display', 'none');
+}
+$('#omim-create-instance-type').change(function() {
+    console.log(this.value);
+    if (this.value === 'litfass') {
+        $('#colorPalette').css('display', 'block');
+    } else {
+        $('#colorPalette').css('display', 'none');
+    }
+});
+</script>
 @stop
