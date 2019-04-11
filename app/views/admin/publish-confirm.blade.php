@@ -3,7 +3,7 @@
 @section('content')
         <div class="jumbotron text-center">
             <h1 style="">Ausstellungen Veröffentlichen</h1>
-            <p>Hier können Sie die Ausstellung auf den Produktionsserver übertragen, d.h. live schalten und damit publik machen!</p>
+            <p>Hier können Sie die Ausstellung auf die Ausspielungsserver übertragen, d.h. live schalten und damit publik machen!</p>
         </div>
 
         <h1 class="page-header">{{{ $va->title }}}<br>
@@ -28,7 +28,22 @@
 
         <div class="row" style="margin-bottom:32px;">
             <div class="col-md-4 col-md-offset-4">
-                <a href="{{ URL::to('admin/publish') }}?oid={{ $va->id }}&amp;confirm=ok" class="btn btn-success btn-lg btn-block"><span class="glyphicon glyphicon-cog"></span> Ausstellung jetzt veröffentlichen</a>
+                {{ Form::open(array('url' => 'admin/publish', 'role' => 'form', 'method' => 'get')) }}
+                {{ Form::hidden('oid', $va->id) }}
+                {{ Form::hidden('confirm', 'ok') }}
+                    <div class="form-group">
+                        {{ Form::label('publish-publish-date', 'Veröffentlichungsdatum') }}
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="glyphicon glyphicon-time"></i></span>
+                            {{ Form::text('publish-date', date('Y-m-d'), array(
+                            'id' => 'publish-publish-date', 'placeholder' => date('Y-m-d'), 'class' => 'form-control')) }}
+                        </div>
+                        <span class="help-block">Geben Sie das Datum in der Form YYYY-MM-DD an.</span></span>
+                    </div>
+                    <div class="submit-group">
+                        {{ Form::button('<span class="glyphicon glyphicon-cog"></span> Ausstellung jetzt veröffentlichen', array('class' => 'btn btn-success btn-lg btn-block', 'type' => 'submit')) }}
+                    </div>
+                {{ Form::close() }}
             </div>
         </div>
 

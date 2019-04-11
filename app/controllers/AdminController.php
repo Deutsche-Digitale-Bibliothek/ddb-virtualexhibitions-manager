@@ -289,6 +289,26 @@ class AdminController extends \BaseController {
              * **********************************************
              */
 
+            // Get user input
+            $input = Input::all();
+
+            // Save publish date into db
+            $vaPublished = DB::table('omeka_exh' . $oid . '_options')->where('name', 'publish-date')->first();
+            // $publishDate = DB::connection()->getPdo()->quote($input['publish-date']);
+            if ($vaPublished) {
+                DB::table('omeka_exh' . $oid . '_options')
+                    ->where('name', 'publish-date')
+                    ->update(array('value' => $input['publish-date']));
+
+            } else {
+                DB::table('omeka_exh' . $oid . '_options')
+                    ->insert(array(
+                        'name' => 'publish-date',
+                        'value' => $input['publish-date']
+                    )
+                );
+            }
+
             // Gather configs and paths first
             $startPublishTime = time();
             $configOmim = Config::get('omim');
