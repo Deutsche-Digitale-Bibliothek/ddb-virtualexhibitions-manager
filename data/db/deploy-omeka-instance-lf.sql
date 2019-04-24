@@ -109,6 +109,7 @@ CREATE TABLE `omeka_exhxxxx-exhibit-number-xxxx_exhibits` (
   `credits` text COLLATE utf8_unicode_ci,
   `featured` tinyint(1) DEFAULT '0',
   `public` tinyint(1) DEFAULT '0',
+  `exhibit_type` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `theme` varchar(30) COLLATE utf8_unicode_ci DEFAULT NULL,
   `theme_options` text COLLATE utf8_unicode_ci,
   `slug` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
@@ -128,8 +129,8 @@ CREATE TABLE `omeka_exhxxxx-exhibit-number-xxxx_exhibits` (
   KEY `public` (`public`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-INSERT INTO `omeka_exhxxxx-exhibit-number-xxxx_exhibits` (`id`, `title`, `subtitle`, `description`, `credits`, `featured`, `public`, `theme`, `theme_options`, `slug`, `added`, `modified`, `owner_id`, `institutions`, `titlebackground`, `titlebackgroundcolor`, `ctrl_colorscheme`, `colorpalette`) VALUES
-(1, 'xxxx-exhibit-title-xxxx', 'xxxx-exhibit-description-xxxx', 'xxxx-exhibit-description-xxxx', '', 0, 1, 'ddb', NULL, 'xxxx-exhibit-slug-xxxx', 'xxxx-exhibit-date-xxxx', 'xxxx-exhibit-date-xxxx', 1, NULL, NULL, NULL, NULL, 'xxxx-exhibit-colorpalette-xxxx');
+INSERT INTO `omeka_exhxxxx-exhibit-number-xxxx_exhibits` (`id`, `title`, `subtitle`, `description`, `credits`, `featured`, `public`, `exhibit_type`, `theme`, `theme_options`, `slug`, `added`, `modified`, `owner_id`, `institutions`, `titlebackground`, `titlebackgroundcolor`, `ctrl_colorscheme`, `colorpalette`) VALUES
+(1, 'xxxx-exhibit-title-xxxx', 'xxxx-exhibit-description-xxxx', 'xxxx-exhibit-description-xxxx', '', 0, 1, 'xxxx-exhibit-type-xxxx', 'ddb', NULL, 'xxxx-exhibit-slug-xxxx', 'xxxx-exhibit-date-xxxx', 'xxxx-exhibit-date-xxxx', 1, NULL, NULL, NULL, NULL, 'xxxx-exhibit-colorpalette-xxxx');
 
 DROP TABLE IF EXISTS `omeka_exhxxxx-exhibit-number-xxxx_exhibit_pages`;
 CREATE TABLE `omeka_exhxxxx-exhibit-number-xxxx_exhibit_pages` (
@@ -476,7 +477,7 @@ INSERT INTO `omeka_exhxxxx-exhibit-number-xxxx_exhibit_color_palettes` (`id`, `p
 (3,	'a',	'orange',	'#ed6d3f',	'dark',	0),
 (4,	'a',	'yellow',	'#f0e63d',	'light',	0),
 (5,	'a',	'green',	'#4ea643',	'dark',	0),
-(6,	'a',	'blue',	'#4ea643',	'dark',	1),
+(6,	'a',	'blue',	'#18b5d9',	'dark',	1),
 (7,	'b',	'grey',	'#3d4f58',	'dark',	0),
 (8,	'b',	'bleu',	'#2593b3',	'dark',	0),
 (9,	'b',	'purple',	'#7c1c60',	'dark',	0),
@@ -506,7 +507,17 @@ INSERT INTO `omeka_exhxxxx-exhibit-number-xxxx_exhibit_color_palettes` (`id`, `p
 (33,	'f',	'curry',	'#f7a51a',	'light',	0),
 (34,	'f',	'creme',	'#fcf3d9',	'light',	0),
 (35,	'g',	'rose',	'#e2a1ab',	'dark',	0),
-(36,	'g',	'creme',	'#f5efb2',	'dark',	0),
-(37,	'g',	'reed',	'#7ba79a',	'dark',	0),
-(38,	'g',	'iceblue',	'#a6c9d9',	'dark',	1),
-(39,	'g',	'green_grey',	'#537883',	'light',	0);
+(36,	'g',	'creme',	'#f5efb2',	'light',	0),
+(37,	'g',	'reed',	'#7ba79a',	'light',	0),
+(38,	'g',	'iceblue',	'#a6c9d9',	'light',	1),
+(39,	'g',	'green_grey',	'#537883',	'dark',	0),
+(40,	'ddb',	'grey_11',	'#1d1d1b',	'dark',	0),
+(41,	'ddb',	'grey_50',	'#575756',	'dark',	0),
+(42,	'ddb',	'grey_62',	'#9d9d9c',	'dark',	0),
+(43,	'ddb',	'grey_78',	'#c6c6c6',	'light',	0),
+(44,	'ddb',	'grey_93',	'#ececec',	'light',	0),
+(45,	'ddb',	'red_80',	'#a5003b',	'dark',	1),
+(46,	'ddb',	'red_38',	'#c77c87',	'dark',	0),
+(47,	'ddb',	'red_16',	'#e2bec2',	'light',	0),
+(48,	'ddb',	'red_4',	'#f5eaeb',	'light',	0),
+(49,	'ddb',	'white',	'ffffff',	'light',	0);

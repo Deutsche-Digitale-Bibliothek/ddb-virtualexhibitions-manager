@@ -25,7 +25,10 @@
                     {{ Form::select('exhibit_type',
                         array(
                             'leporello' => 'Leporello (klassische Ausstellung)',
-                            'litfass' => 'Litfaß extern (Single Page Ausstellung)'),
+                            'litfass' => 'Litfaß Partner Standard (Single Page Ausstellung)',
+                            'litfass_featured' => 'Litfaß Partner Featured (Single Page Ausstellung)',
+                            'litfass_ddb' => 'Litfaß DDB Exhibition (Single Page Ausstellung)'
+                        ),
                         null,
                         array(
                             'id' => 'omim-create-instance-type',
@@ -111,6 +114,9 @@
                         <tbody>
                         <?php $currentPalette = ''; ?>
                         @foreach ($colorPalettes as $colorPalette)
+                            @if ($colorPalette->palette == 'ddb')
+                                <?php continue; ?>
+                            @endif
                             @if ($colorPalette->palette !== $currentPalette)
                                 @if ('' !== $currentPalette)
                                 </td></tr>
@@ -147,8 +153,8 @@ if ($("#omim-create-instance-type").val() !== 'litfass') {
     $('#colorPalette').css('display', 'none');
 }
 $('#omim-create-instance-type').change(function() {
-    console.log(this.value);
-    if (this.value === 'litfass') {
+    // console.log(this.value);
+    if (this.value === 'litfass' || this.value === 'litfass_featured') {
         $('#colorPalette').css('display', 'block');
     } else {
         $('#colorPalette').css('display', 'none');

@@ -32,7 +32,7 @@
                 {{ Form::hidden('oid', $va->id) }}
                 {{ Form::hidden('confirm', 'ok') }}
                     <div class="form-group">
-                        {{ Form::label('publish-publish-date', 'Veröffentlichungsdatum') }}
+                        {{ Form::label('publish-publish-date', 'Veröffentlichungsdatum (Anzeige in der Ausstellung)') }}
                         <div class="input-group">
                             <span class="input-group-addon"><i class="glyphicon glyphicon-time"></i></span>
                             {{ Form::text('publish-date', date('Y-m-d'), array(

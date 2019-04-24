@@ -136,7 +136,7 @@ class AdminController extends \BaseController {
             // Gather some paths and vars
             $docRoot = rtrim($_SERVER['DOCUMENT_ROOT'], '\\/');
             $dbDataPath = realpath(base_path() . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'db');
-            if (isset($input['exhibit_type']) && $input['exhibit_type'] === 'litfass') {
+            if (isset($input['exhibit_type']) && $input['exhibit_type'] !== 'leporello') {
                 $deployArchive = base_path() . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'deploy_lf.tar.gz';
             } else {
                 $deployArchive = base_path() . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'deploy.tar.gz';
@@ -179,7 +179,7 @@ class AdminController extends \BaseController {
 
             // Generate and seed mysql tables with default contents
             $exhibitSlug = $this->strToSafe($instance->title);
-            if (isset($input['exhibit_type']) && $input['exhibit_type'] === 'litfass') {
+            if (isset($input['exhibit_type']) && $input['exhibit_type'] !== 'leporello') {
                 $dbData = file_get_contents($dbDataPath . DIRECTORY_SEPARATOR . 'deploy-omeka-instance-lf.sql');
                 $search = array(
                     'xxxx-exhibit-number-xxxx',
@@ -188,7 +188,8 @@ class AdminController extends \BaseController {
                     'xxxx-exhibit-slug-xxxx',
                     'xxxx-instance-slug-xxxx',
                     'xxxx-exhibit-date-xxxx',
-                    'xxxx-exhibit-colorpalette-xxxx'
+                    'xxxx-exhibit-colorpalette-xxxx',
+                    'xxxx-exhibit-type-xxxx'
                 );
                 $replace = array(
                     $instance->id,
@@ -197,7 +198,8 @@ class AdminController extends \BaseController {
                     strtolower($exhibitSlug),
                     $slug,
                     date('Y-m-d H:i:s'),
-                    $instance->color_palette
+                    $instance->color_palette,
+                    $input['exhibit_type']
                 );
             } else {
                 $dbData = file_get_contents($dbDataPath . DIRECTORY_SEPARATOR . 'deploy-omeka-instance.sql');
