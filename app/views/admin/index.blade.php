@@ -1,6 +1,7 @@
 @extends('layouts.master')
 
 @section('content')
+
         <div class="jumbotron text-center well">
             <h1>Redaktionssystem <small><br>für Virtuelle Ausstellungen der Deutschen&nbsp;Digitalen&nbsp;Bibliothek</small></h1>
             <p><small>Die <a href="https://www.deutsche-digitale-bibliothek.de/content/exhibits/">Liste der veröffentlichten Ausstellungen</a> wird im DDB-Portal als statische Seite gepflegt.</small></p>
@@ -50,6 +51,11 @@
                     <div class="panel-body">
                         <h2>{{{ $va->title }}}<br>
                         <small>{{{ $va->subtitle }}}</small></h2>
+                        @if ($va->exhibit_type)
+                        <p>Typ: <em>{{{ $exhibitTypes[$va->exhibit_type] }}}</em></p>
+                        @else
+                        <p>Typ: <em>{{{ $exhibitTypes['leporello'] }}}</em></p>
+                        @endif
                         <ul class="list-unstyled">
                             <li><span class="glyphicon glyphicon-time" style="color:#666;"></span> Instanz erzeugt am <?php echo date('d.m.Y \u\m H:i:s', strtotime($va->created_at)); ?> Uhr.</li>
                             @if ($va->last_unpublished_at && $va->last_unpublished_at > $va->last_published_at)

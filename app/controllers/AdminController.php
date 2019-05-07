@@ -37,7 +37,13 @@ class AdminController extends \BaseController {
         }
         $omiminstance = OmimInstance::orderBy($orderBy['field'], $orderBy['direction'])->get();
         $configOmim = Config::get('omim');
-        return View::make('admin.index', compact('omiminstance', 'configOmim'));
+        $exhibitTypes = array(
+            'leporello' => 'Leporello (klassische Ausstellung)',
+            'litfass' => 'Litfaß Partner Standard (Single Page Ausstellung)',
+            'litfass_featured' => 'Litfaß Partner Featured (Single Page Ausstellung)',
+            'litfass_ddb' => 'Litfaß DDB Exhibition (Single Page Ausstellung)'
+        );
+        return View::make('admin.index', compact('omiminstance', 'configOmim', 'exhibitTypes'));
     }
 
     public function checkOmimInstanceTbl()
@@ -130,6 +136,8 @@ class AdminController extends \BaseController {
             $instance->exhibit_type	= $input['exhibit_type'];
             if (isset($input['color_palette']) && !empty($input['color_palette'])) {
                 $instance->color_palette = $input['color_palette'];
+            } elseif ($input['exhibit_type'] === 'litfass_ddb') {
+                $instance->color_palette = 'ddb';
             }
             $instance->save();
 
