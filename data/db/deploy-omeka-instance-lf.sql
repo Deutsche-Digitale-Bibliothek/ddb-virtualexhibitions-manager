@@ -126,13 +126,14 @@ CREATE TABLE `omeka_exhxxxx-exhibit-number-xxxx_exhibits` (
   `titleimage` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `ctrl_colorscheme` int(11) unsigned DEFAULT NULL COMMENT 'Color Scheme ID for Control fields',
   `colorpalette` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `nav_color` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `slug` (`slug`),
   KEY `public` (`public`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-INSERT INTO `omeka_exhxxxx-exhibit-number-xxxx_exhibits` (`id`, `title`, `subtitle`, `shorttitle`, `description`, `credits`, `featured`, `public`, `exhibit_type`, `theme`, `theme_options`, `slug`, `added`, `modified`, `owner_id`, `institutions`, `titlebackground`, `titlebackgroundcolor`, `titleimage`, `ctrl_colorscheme`, `colorpalette`) VALUES
-(1, 'xxxx-exhibit-title-xxxx', 'xxxx-exhibit-description-xxxx', 'xxxx-exhibit-title-xxxx', 'xxxx-exhibit-description-xxxx', '', 0, 1, 'xxxx-exhibit-type-xxxx', 'ddb', NULL, 'xxxx-exhibit-slug-xxxx', 'xxxx-exhibit-date-xxxx', 'xxxx-exhibit-date-xxxx', 1, NULL, NULL, NULL, NULL, NULL, 'xxxx-exhibit-colorpalette-xxxx');
+INSERT INTO `omeka_exhxxxx-exhibit-number-xxxx_exhibits` (`id`, `title`, `subtitle`, `shorttitle`, `description`, `credits`, `featured`, `public`, `exhibit_type`, `theme`, `theme_options`, `slug`, `added`, `modified`, `owner_id`, `institutions`, `titlebackground`, `titlebackgroundcolor`, `titleimage`, `ctrl_colorscheme`, `colorpalette`, `nav_color`) VALUES
+(1, 'xxxx-exhibit-title-xxxx', 'xxxx-exhibit-description-xxxx', 'xxxx-exhibit-title-xxxx', 'xxxx-exhibit-description-xxxx', '', 0, 1, 'xxxx-exhibit-type-xxxx', 'ddb', NULL, 'xxxx-exhibit-slug-xxxx', 'xxxx-exhibit-date-xxxx', 'xxxx-exhibit-date-xxxx', 1, NULL, NULL, NULL, NULL, NULL, 'xxxx-exhibit-colorpalette-xxxx', NULL);
 
 DROP TABLE IF EXISTS `omeka_exhxxxx-exhibit-number-xxxx_exhibit_pages`;
 CREATE TABLE `omeka_exhxxxx-exhibit-number-xxxx_exhibit_pages` (
