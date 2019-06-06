@@ -141,6 +141,7 @@ CREATE TABLE `omeka_exhxxxx-exhibit-number-xxxx_exhibit_pages` (
   `exhibit_id` int(10) unsigned NOT NULL,
   `parent_id` int(10) unsigned DEFAULT NULL,
   `title` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `hide_title` tinyint(1) NOT NULL DEFAULT '0',
   `slug` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `layout` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `order` tinyint(3) unsigned NOT NULL,
