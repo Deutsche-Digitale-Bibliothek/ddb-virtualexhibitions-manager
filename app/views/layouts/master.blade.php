@@ -34,6 +34,8 @@
                                 @if (Auth::user()->isroot == 1)
                                 <li{{ Request::is('admin/create') ? ' class="active"' : '' }}>
                                     {{ HTML::link('admin/create', 'Neue Omeka-Instanz erzeugen') }}</li>
+                                <li{{ Request::is('admin/imprint') ? ' class="active"' : '' }}>
+                                    {{ HTML::link('admin/imprint', 'Impressum bearbeiten') }}</li>
                                 @endif
                             </ul>
                         </li>

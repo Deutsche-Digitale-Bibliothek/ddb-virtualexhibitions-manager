@@ -884,6 +884,39 @@ class AdminController extends \BaseController {
 
     }
 
+    public function getImprint()
+    {
+        $contents = array(
+            'litfass' => $this->readImprintFile('litfass'),
+            'litfass_featured' => $this->readImprintFile('litfass_featured'),
+            'litfass_ddb' => $this->readImprintFile('litfass_ddb'),
+        );
+        return View::make('admin.imprint', compact('contents'));
+    }
+
+    public function postImprint()
+    {
+        $contents = array(
+            'litfass' => Input::get('imprint_litfass'),
+            'litfass_featured' => Input::get('imprint_litfass_featured'),
+            'litfass_ddb' => Input::get('imprint_litfass_ddb'),
+        );
+        $this->writeImprintFile($contents);
+        return View::make('admin.imprint', compact('contents'));
+    }
+
+    protected function readImprintFile($name)
+    {
+        return file_get_contents(base_path('data/imprint_' . $name . '.html'));
+    }
+
+    protected function writeImprintFile($contents)
+    {
+        foreach ($contents as $name => $content) {
+            file_put_contents(base_path('data/imprint_' . $name . '.html'), $content);
+        }
+    }
+
     /**
      * Format a string to be safe e.g. for URL or filename
      *
