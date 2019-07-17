@@ -355,6 +355,7 @@ class AdminController extends \BaseController {
                 $productionDocRoot[$remoteSrvNo] = rtrim($remoteSrvConfig['production']['ssh']['docroot'], '\\/');
                 $productionInstancePath[$remoteSrvNo] = $productionDocRoot[$remoteSrvNo] . DIRECTORY_SEPARATOR . $va->slug;
                 $productionDeployArchive[$remoteSrvNo] = rtrim($remoteSrvConfig['production']['ssh']['datadir'], '\\/') . DIRECTORY_SEPARATOR . 'deploy.tar.gz';
+                $productionDeployArchiveLf[$remoteSrvNo] = rtrim($remoteSrvConfig['production']['ssh']['datadir'], '\\/') . DIRECTORY_SEPARATOR . 'deploy_lf.tar.gz';
 
                 $sshConnections[$remoteSrvNo] = $this->connectToProductionServer($remoteSrvConfig);
                 if (!$sshConnections[$remoteSrvNo]) {
@@ -374,12 +375,22 @@ class AdminController extends \BaseController {
                 . 'data' . DIRECTORY_SEPARATOR
                 . 'production'. DIRECTORY_SEPARATOR
                 . 'deploy.tar.gz';
+            $localDeploymentSkeletonLf = base_path() . DIRECTORY_SEPARATOR
+                . 'data' . DIRECTORY_SEPARATOR
+                . 'production'. DIRECTORY_SEPARATOR
+                . 'deploy_lf.tar.gz';
              $localDeploymentSkeletonMd5 = md5_file($localDeploymentSkeleton);
+             $localDeploymentSkeletonLfMd5 = md5_file($localDeploymentSkeletonLf);
              foreach ($sshConnections as $remoteSrvNo => $ssh) {
                 $productionDeploymentSkeletonMd5 = $ssh->exec('md5sum ' . $productionDeployArchive[$remoteSrvNo]);
                 $productionDeploymentSkeletonMd5 = substr(
                     $productionDeploymentSkeletonMd5, 0, strpos($productionDeploymentSkeletonMd5, ' ')
                 );
+                $productionDeploymentSkeletonLfMd5 = $ssh->exec('md5sum ' . $productionDeployArchiveLf[$remoteSrvNo]);
+                $productionDeploymentSkeletonLfMd5 = substr(
+                    $productionDeploymentSkeletonLfMd5, 0, strpos($productionDeploymentSkeletonLfMd5, ' ')
+                );
+
                 if ($productionDeploymentSkeletonMd5 !== $localDeploymentSkeletonMd5) {
                     $updateSkeleton = $sftpConnections[$remoteSrvNo]->put(
                         $productionDeployArchive[$remoteSrvNo],
@@ -392,6 +403,20 @@ class AdminController extends \BaseController {
                             'auf Produktionserver Nr.' . $remoteSrvNo . '.');
                     }
                 }
+
+                if ($productionDeploymentSkeletonLfMd5 !== $localDeploymentSkeletonLfMd5) {
+                    $updateSkeleton = $sftpConnections[$remoteSrvNo]->put(
+                        $productionDeployArchiveLf[$remoteSrvNo],
+                        $localDeploymentSkeletonLf,
+                        1
+                    );
+                    if ($updateSkeleton != true) {
+                        return Redirect::to('admin')->with('error-message',
+                            'Es gab Probleme der Aktualisierung des Standard-Archivs ' .
+                            'auf Produktionserver Nr.' . $remoteSrvNo . '.');
+                    }
+                }
+
              }
 
             /**
@@ -490,8 +515,13 @@ class AdminController extends \BaseController {
                 $ssh->exec('mkdir -m 775 ' . $productionInstancePath[$remoteSrvNo]);
 
                 // Unpack deploy archive on remote server
-                $ssh->exec('tar -xzf ' . $productionDeployArchive[$remoteSrvNo] . ' -C '
-                    . $productionInstancePath[$remoteSrvNo]);
+                if (!isset($va->exhibit_type) || empty($va->exhibit_type) || $va->exhibit_type === 'leporello') {
+                    $ssh->exec('tar -xzf ' . $productionDeployArchive[$remoteSrvNo] . ' -C '
+                        . $productionInstancePath[$remoteSrvNo]);
+                } else {
+                    $ssh->exec('tar -xzf ' . $productionDeployArchiveLf[$remoteSrvNo] . ' -C '
+                        . $productionInstancePath[$remoteSrvNo]);
+                }
                 $ssh->exec('chgrp -R ' . $configOmim['remote'][$remoteSrvNo]['production']['ssh']['group']
                     . ' ' . $productionInstancePath[$remoteSrvNo]);
 
@@ -1024,7 +1054,8 @@ class AdminController extends \BaseController {
             return false;
         }
 
-        $ssh = new Net_SSH2($configOmim['production']['ssh']['host'], $configOmim['production']['ssh']['port']);
+        // $ssh = new Net_SSH2($configOmim['production']['ssh']['host'], $configOmim['production']['ssh']['port']);
+        $ssh = new phpseclib\Net\SSH2($configOmim['production']['ssh']['host'], $configOmim['production']['ssh']['port']);
 
 
         /**
@@ -1047,7 +1078,8 @@ class AdminController extends \BaseController {
         if (array_key_exists('key', $configOmim['production']['ssh']) &&
             !empty($configOmim['production']['ssh']['key'])) {
 
-            $key = new Crypt_RSA();
+            // $key = new Crypt_RSA();
+            $key = new phpseclib\Crypt\RSA();
 
             if (array_key_exists('keyphrase', $configOmim['production']['ssh']) &&
             !empty($configOmim['production']['ssh']['keyphrase'])) {
@@ -1083,12 +1115,14 @@ class AdminController extends \BaseController {
             return false;
         }
 
-        $ssh = new Net_SFTP($configOmim['production']['ssh']['host'], $configOmim['production']['ssh']['port']);
+        // $ssh = new Net_SFTP($configOmim['production']['ssh']['host'], $configOmim['production']['ssh']['port']);
+        $ssh = new phpseclib\Net\SFTP($configOmim['production']['ssh']['host'], $configOmim['production']['ssh']['port']);
 
         if (array_key_exists('key', $configOmim['production']['ssh']) &&
             !empty($configOmim['production']['ssh']['key'])) {
 
-            $key = new Crypt_RSA();
+            // $key = new Crypt_RSA();
+            $key = new phpseclib\Crypt\RSA();
 
             if (array_key_exists('keyphrase', $configOmim['production']['ssh']) &&
             !empty($configOmim['production']['ssh']['keyphrase'])) {
@@ -1117,18 +1151,14 @@ class AdminController extends \BaseController {
      */
     public function getTestssh()
     {
-
         // Only users with root privileges are allowed
         if (Auth::user()->isroot != 1) {
             return Redirect::to('admin')->with('error-message',
                 'Sie haben keine Berechtigung, die Ressource \'test/ssh\' zu verwenden.');
         }
 
-
         // Gather configs and paths first
         $configOmim = Config::get('omim');
-        $docRoot = rtrim($_SERVER['DOCUMENT_ROOT'], '\\/');
-
 
         /**
          * Loop through remote server configs and
@@ -1141,12 +1171,14 @@ class AdminController extends \BaseController {
             $sshConnections[$remoteSrvNo] = $this->connectTestToProductionServer($remoteSrvConfig);
 
             if (!$sshConnections[$remoteSrvNo]) {
-                die('Verbindung zum Productionsserver '
+                echo 'Verbindung zum Productionsserver '
                     . $remoteSrvConfig['production']['ssh']['host']
-                    . ' konnte nicht hergestellt werden.');
+                    . ' konnte nicht hergestellt werden.';
             } else {
-                echo 'pwd Kommando auf remote server: ' . "<br>\n";
+                echo 'pwd auf remote server: ' . "<br>\n";
                 echo $sshConnections{$remoteSrvNo}->exec('pwd') . "<br>\n";
+                echo 'ls ' . $remoteSrvConfig['production']['ssh']['docroot'] . ' auf remote server: ' . "<br>\n";
+                echo $sshConnections{$remoteSrvNo}->exec('ls ' . $remoteSrvConfig['production']['ssh']['docroot']) . "<br>\n";
             }
         }
     }
@@ -1166,12 +1198,14 @@ class AdminController extends \BaseController {
             return false;
         }
 
-        $ssh = new Net_SSH2($configOmim['production']['ssh']['host'], $configOmim['production']['ssh']['port']);
+        // $ssh = new Net_SSH2($configOmim['production']['ssh']['host'], $configOmim['production']['ssh']['port']);
+        $ssh = new phpseclib\Net\SSH2($configOmim['production']['ssh']['host'], $configOmim['production']['ssh']['port']);
 
         if (array_key_exists('key', $configOmim['production']['ssh']) &&
             !empty($configOmim['production']['ssh']['key'])) {
 
-            $key = new Crypt_RSA();
+            // $key = new Crypt_RSA();
+            $key = new phpseclib\Crypt\RSA();
 
             if (array_key_exists('keyphrase', $configOmim['production']['ssh']) &&
             !empty($configOmim['production']['ssh']['keyphrase'])) {
