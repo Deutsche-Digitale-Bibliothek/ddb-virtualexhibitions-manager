@@ -25,29 +25,17 @@
 </div>
 @stop
 @section('page-bottom')
-<script src="/js/ckeditor/ckeditor.js"></script>
-<script src="/js/ckeditor/translations/de.js"></script>
+<script src="/js/tinymce/tinymce.min.js"></script>
 <script>
-var editorFields = document.querySelectorAll('.editor_field');
-for (var i = 0; i < editorFields.length; i++) {
-    ClassicEditor
-        .create(editorFields[i], {
-            toolbar: [ 'undo', 'redo', '|', 'heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote'],
-            language: 'de'
-            })
-        .catch(error => {
-            console.error(error);
-        });
-}
-{{-- ClassicEditor
-    .create(
-        document.querySelector('#imprint'), {
-            toolbar: [ 'undo', 'redo', '|', 'heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote'],
-            language: 'de'
-        }
-    )
-    .catch(error => {
-        console.error(error);
-    }); --}}
+tinymce.init({
+  selector: '.editor_field',
+  height: 600,
+  language: 'de',
+  menubar: false,
+  branding: false,
+  plugins: ['anchor autolink fullscreen code help wordcount'],
+  block_formats: 'Absatz=p; \u00dcberschrift 1=h1; \u00dcberschrift 2=h2; \u00dcberschrift 3=h3; \u00dcberschrift 4=h4; Vorformatiert=pre',
+  toolbar: 'undo redo | formatselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent anchor | removeformat code wordcount | fullscreen help'
+});
 </script>
 @stop
