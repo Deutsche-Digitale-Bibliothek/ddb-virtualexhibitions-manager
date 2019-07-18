@@ -947,6 +947,60 @@ class AdminController extends \BaseController {
         }
     }
 
+    public function getPublishimprint()
+    {
+        // Only users with root privileges are allowed pubish
+        if (Auth::user()->isroot != 1) {
+            return Redirect::to('admin')->with('error-message',
+                'Sie haben keine Berechtigung, die Ressource \'admin/publishimprint\' zu verwenden.');
+        }
+
+        // Gather configs and paths first
+        $configOmim = Config::get('omim');
+        $dataPath = base_path() . DIRECTORY_SEPARATOR . 'data';
+        $files = array(
+            'imprint_litfass.html' => $dataPath . DIRECTORY_SEPARATOR . 'imprint_litfass.html',
+            'imprint_litfass_ddb.html' => $dataPath . DIRECTORY_SEPARATOR . 'imprint_litfass_ddb.html',
+            'imprint_litfass_featured.html' => $dataPath . DIRECTORY_SEPARATOR . 'imprint_litfass_featured.html',
+        );
+
+        /**
+         * Loop through remote server configs and
+         * init sftp connections first, because we will not proceed
+         * if a connection fails.
+         */
+        foreach ($configOmim['remote'] as $remoteSrvNo => $remoteSrvConfig) {
+            $sftpConnections[$remoteSrvNo] = $this->sftpConnectToProductionServer($remoteSrvConfig);
+            if (!$sftpConnections[$remoteSrvNo]) {
+                return Redirect::to('admin/imprint')->with('error-message',
+                    'Verbindung zum Server '
+                    . $remoteSrvConfig['production']['ssh']['host']
+                    . 'konnte nicht hergestellt werden.');
+            }
+        }
+
+        /**
+         * Deploy files to all remote Servers
+         * ************************************
+         */
+        foreach ($sftpConnections as $remoteSrvNo => $sftp) {
+            foreach ($files as $fileName => $filePath) {
+                $remoteFile = $configOmim['remote'][$remoteSrvNo]['production']['ssh']['datadir'] . DIRECTORY_SEPARATOR . $fileName;
+                $upload = $sftp->put($remoteFile, $filePath, 1);
+                if ($upload != true) {
+                    return Redirect::to('admin/imprint')->with('error-message',
+                        'Es gab Probleme beim Upload der Impressen auf den Server '
+                        . $configOmim['remote'][$remoteSrvNo]['production']['ssh']['host'] . '.');
+                } else {
+                    // chgrp will return false if user does not have privileges to change (owner and) group (i.e. is root) - but we do not care.
+                    $checkChangeGroup[] = $sftp->chgrp($remoteFile, $configOmim['remote'][$remoteSrvNo]['production']['ssh']['group']);
+                }
+            }
+        }
+
+        return Redirect::to('admin/imprint')->with('success-message', 'Impressen erfolgreich veröffentlicht.');
+    }
+
     /**
      * Format a string to be safe e.g. for URL or filename
      *

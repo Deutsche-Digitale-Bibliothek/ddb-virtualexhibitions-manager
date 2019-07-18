@@ -1,8 +1,8 @@
 @extends('layouts.master')
 @section('content')
 <div class="jumbotron text-center">
-    <h1 style="">Impressum bearbeiten</h1>
-    <p>Hier können Sie die Vorlage für das Impressum aller Ausstellungen editieren!</p>
+    <h1 style="">Impressen bearbeiten</h1>
+    <p>Hier können Sie die Vorlagen für die Impressen aller Ausstellungen editieren!</p>
 </div>
 <div class="col-xs-12">
     {{ Form::open(array('url' => 'admin/imprint', 'class' => 'form-horizontal', 'role' => 'form')) }}
@@ -20,6 +20,7 @@
     </div>
     <div class="text-center" style="margin:2rem 0;">
     {{ Form::button('Speichern', array('class' => 'btn btn-success', 'type' => 'submit')) }}
+    <a class="btn btn-success" href="{{ url('admin/publishimprint'); }}" role="button"><span class="glyphicon glyphicon-cog"></span> Veröffentlichen</a>
     </div>
     {{ Form::close() }}
 </div>
