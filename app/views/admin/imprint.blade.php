@@ -34,9 +34,9 @@ tinymce.init({
   language: 'de',
   menubar: false,
   branding: false,
-  plugins: ['anchor autolink fullscreen code help wordcount'],
+  plugins: ['anchor autolink fullscreen code help wordcount link'],
   block_formats: 'Absatz=p; \u00dcberschrift 1=h1; \u00dcberschrift 2=h2; \u00dcberschrift 3=h3; \u00dcberschrift 4=h4; Vorformatiert=pre',
-  toolbar: 'undo redo | formatselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent anchor | removeformat code wordcount | fullscreen help'
+  toolbar: 'undo redo | formatselect | bold italic | link | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent anchor | removeformat code wordcount | fullscreen help'
 });
 </script>
 @stop
