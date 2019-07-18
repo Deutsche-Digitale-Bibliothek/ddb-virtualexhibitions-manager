@@ -1001,6 +1001,94 @@ class AdminController extends \BaseController {
         return Redirect::to('admin/imprint')->with('success-message', 'Impressen erfolgreich veröffentlicht.');
     }
 
+    public function getConsent()
+    {
+        $contents = array(
+            'termsofuse' => $this->readConsentFile('termsofuse'),
+            'privacypolicy' => $this->readConsentFile('privacypolicy'),
+        );
+        return View::make('admin.consent', compact('contents'));
+    }
+
+    public function postConsent()
+    {
+        $contents = array(
+            'termsofuse' => Input::get('consent_termsofuse'),
+            'privacypolicy' => Input::get('consent_privacypolicy'),
+        );
+        $this->writeConsentFile($contents);
+        return View::make('admin.consent', compact('contents'));
+    }
+
+    protected function readConsentFile($name)
+    {
+        return file_get_contents(base_path('data/consent_' . $name . '.html'));
+    }
+
+    protected function writeConsentFile($contents)
+    {
+        foreach ($contents as $name => $content) {
+            file_put_contents(base_path('data/consent_' . $name . '.html'), $content);
+        }
+    }
+
+    public function getPublishconsent()
+    {
+        // Only users with root privileges are allowed pubish
+        if (Auth::user()->isroot != 1) {
+            return Redirect::to('admin')->with('error-message',
+                'Sie haben keine Berechtigung, die Ressource \'admin/publishconsent\' zu verwenden.');
+        }
+
+        // Actualy there is no need to put this on production servers
+        // return Redirect::to('admin')->with('error-message',
+        //         'Einverständniserklärungen müssen nicht veröffentlicht werden.');
+
+        // Gather configs and paths first
+        $configOmim = Config::get('omim');
+        $dataPath = base_path() . DIRECTORY_SEPARATOR . 'data';
+        $files = array(
+            'consent_privacypolicy.html' => $dataPath . DIRECTORY_SEPARATOR . 'consent_privacypolicy.html',
+            'consent_termsofuse.html' => $dataPath . DIRECTORY_SEPARATOR . 'consent_termsofuse.html',
+        );
+
+        /**
+         * Loop through remote server configs and
+         * init sftp connections first, because we will not proceed
+         * if a connection fails.
+         */
+        foreach ($configOmim['remote'] as $remoteSrvNo => $remoteSrvConfig) {
+            $sftpConnections[$remoteSrvNo] = $this->sftpConnectToProductionServer($remoteSrvConfig);
+            if (!$sftpConnections[$remoteSrvNo]) {
+                return Redirect::to('admin/consent')->with('error-message',
+                    'Verbindung zum Server '
+                    . $remoteSrvConfig['production']['ssh']['host']
+                    . 'konnte nicht hergestellt werden.');
+            }
+        }
+
+        /**
+         * Deploy files to all remote Servers
+         * ************************************
+         */
+        foreach ($sftpConnections as $remoteSrvNo => $sftp) {
+            foreach ($files as $fileName => $filePath) {
+                $remoteFile = $configOmim['remote'][$remoteSrvNo]['production']['ssh']['datadir'] . DIRECTORY_SEPARATOR . $fileName;
+                $upload = $sftp->put($remoteFile, $filePath, 1);
+                if ($upload != true) {
+                    return Redirect::to('admin/consent')->with('error-message',
+                        'Es gab Probleme beim Upload der Einverständniserklärung auf den Server '
+                        . $configOmim['remote'][$remoteSrvNo]['production']['ssh']['host'] . '.');
+                } else {
+                    // chgrp will return false if user does not have privileges to change (owner and) group (i.e. is root) - but we do not care.
+                    $checkChangeGroup[] = $sftp->chgrp($remoteFile, $configOmim['remote'][$remoteSrvNo]['production']['ssh']['group']);
+                }
+            }
+        }
+
+        return Redirect::to('admin/consent')->with('success-message', 'Einverständniserklärung erfolgreich veröffentlicht.');
+    }
+
     /**
      * Format a string to be safe e.g. for URL or filename
      *
