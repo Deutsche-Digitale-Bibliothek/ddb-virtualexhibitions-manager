@@ -300,7 +300,7 @@ INSERT INTO `omeka_exhxxxx-exhibit-number-xxxx_options` (`id`, `name`, `value`) 
 (130, 'bookreader_class', 'ddb-bookreader'),
 (131, 'bookreader_width', '100%'),
 (132, 'bookreader_height',  '480'),
-(158, 'disable_default_file_validation',  '1'),
+(158, 'disable_default_file_validation',  '0'),
 (159, 'file_extension_whitelist', 'aac,aif,aiff,asf,asx,avi,gif,jpeg,jpg,mov,mp2,mp3,mp4,mpa,mpe,mpeg,mpg,ogg,wav,png,wma,wmv'),
 (160, 'file_mime_type_whitelist', 'application/ogg,application/x-ogg,audio/aac,audio/aiff,audio/mp3,audio/mp4,audio/mpeg,audio/mpeg3,audio/ogg,audio/wav,audio/wma,audio/x-aac,audio/x-aiff,audio/x-mp3,audio/x-mp4,audio/x-mpeg,audio/x-mpeg3,audio/x-mpegaudio,audio/x-realaudio,audio/x-wav,audio/x-wma,image/gif,image/jpeg,image/pjpeg,image/png,text/plain,video/asf,video/avi,video/divx,video/mp4,video/mpeg,video/msvideo,video/ogg,video/quicktime,video/x-ms-wmv,video/x-msvideo'),
 (161, 'recaptcha_public_key', ''),
