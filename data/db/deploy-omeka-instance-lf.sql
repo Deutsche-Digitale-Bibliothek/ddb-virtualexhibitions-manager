@@ -325,7 +325,8 @@ INSERT INTO `omeka_exhxxxx-exhibit-number-xxxx_options` (`id`, `name`, `value`) 
 (248, 'homepage_uri', '/xxxx-instance-slug-xxxx/exhibits/show/xxxx-exhibit-slug-xxxx'),
 (260, 'gina_admin_mod_dashboard_panel_title', 'Wenn Sie Unterstützung benötigen: '),
 (261, 'gina_admin_mod_dashboard_panel_content', '<p><a title=\"Kuratoren-Handbuch online\" href=\"https://deutsche-digitale-bibliothek.github.io/ddb-virtualexhibitions-docs/\" target=\"_blank\">Benutzungs-Handbuch online</a></p>\r\n<h4>Ansprechpersonen:</h4>\r\n<p>Laura Schr&ouml;der<br /><a href=\"mailto:L.Schroeder@dnb.de\">L.Schroeder@dnb.de</a><br />Tel.:&nbsp;<span>+49 69 1525-1793<br /></span></p>\r\n<p>Lisa Landes<br /><a href=\"mailto:L.Landes@dnb.de\" target=\"_self\">L.Landes@dnb.de</a><br />Tel.:&nbsp;<span>+49 69 1525-1797<br /><br /></span></p>'),
-(262,'omeka_update','a:2:{s:14:\"latest_version\";s:6:\"2.6.1\n\";s:12:\"last_updated\";i:1541081260;}')
+(262,'omeka_update','a:2:{s:14:\"latest_version\";s:6:\"2.6.1\n\";s:12:\"last_updated\";i:1541081260;}'),
+(263,'middsize_constraint',  '480'),
 ;
 
 DROP TABLE IF EXISTS `omeka_exhxxxx-exhibit-number-xxxx_plugins`;
