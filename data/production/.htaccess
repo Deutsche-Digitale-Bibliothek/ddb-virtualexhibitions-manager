@@ -2,7 +2,7 @@ RewriteEngine On
 RewriteBase /
 RewriteCond %{REQUEST_URI} ^[/]{0,1}$ [OR]
 RewriteCond %{REQUEST_URI} /index\.[^/?]+$
-RewriteRule (.*) https://www.deutsche-digitale-bibliothek.de/content/exhibits/ [NE,R=301,L]
+RewriteRule (.*) https://www.deutsche-digitale-bibliothek.de/content/journal/ausstellungen [NE,R=301,L]
 
 <IfModule mod_deflate.c>
 # Insert filter
