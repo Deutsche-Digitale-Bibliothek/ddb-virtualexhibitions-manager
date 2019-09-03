@@ -126,6 +126,7 @@ CREATE TABLE `omeka_exhxxxx-exhibit-number-xxxx_exhibits` (
   `titlebgpos` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `titleimage` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `titlelogo` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `titlelogopos` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `ctrl_colorscheme` int(11) unsigned DEFAULT NULL COMMENT 'Color Scheme ID for Control fields',
   `colorpalette` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `nav_color` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
