@@ -24,6 +24,7 @@ return array(
                 'element_sets',
                 'element_texts',
                 'exhibits',
+                'exhibit_color_palettes',
                 'exhibit_pages',
                 'exhibit_page_entries',
                 'files',
