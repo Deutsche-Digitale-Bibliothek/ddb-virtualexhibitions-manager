@@ -24,10 +24,10 @@
                     {{ Form::label('omim-create-instance-type', 'Typ der Ausstellung') }}
                     {{ Form::select('exhibit_type',
                         array(
-                            'leporello' => 'Leporello (klassische Ausstellung)',
-                            'litfass' => 'Litfaß Partner Standard (Single Page Ausstellung)',
-                            'litfass_featured' => 'Litfaß Partner Featured (Single Page Ausstellung)',
-                            'litfass_ddb' => 'Litfaß DDB Exhibition (Single Page Ausstellung)'
+                            'leporello' => 'Leporello',
+                            'litfass' => 'Litfaß Partner Standard',
+                            'litfass_featured' => 'Litfaß Partner Featured',
+                            'litfass_ddb' => 'Litfaß DDB Exhibition'
                         ),
                         null,
                         array(
