@@ -343,6 +343,10 @@ class AdminController extends \BaseController {
                 . $startPublishTime . '.ini';
 
             foreach ($configOmim['common']['db']['tables'] as $dbtable) {
+                if ($dbtable === 'exhibit_color_palettes'
+                    && (!isset($va->exhibit_type) || $va->exhibit_type === 'leporello')) {
+                    continue;
+                }
                 $dbtables[] = 'omeka_exh' . $va->id . '_' . $dbtable;
             }
 
