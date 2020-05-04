@@ -690,4 +690,42 @@ class MigrationController extends \BaseController {
 
     }
 
+    public function getMigrateomekaversion()
+    {
+        // Only users with root privileges are allowed to migrate
+        if (Auth::user()->isroot != 1) {
+            return Redirect::to('admin')->with('error-message',
+                'Sie haben keine Berechtigung, die Ressource \'admin/create\' zu verwenden.');
+        }
+
+        // extract bootstrap from delpoy file
+        $datapath = realpath(base_path() . DIRECTORY_SEPARATOR . 'data');
+        $tarfile = realpath(base_path() . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'deploy_lf.tar.gz');
+        exec('tar -xzf ' . $tarfile . ' -C ' . $datapath . ' bootstrap.php');
+
+        // Just a notice: regenerate deploy_lf.tar.gz:
+        // tar -cvzf deploy_lf.tar.gz -C /absulte/path/to/files * .htaccess
+
+        $publicpath = realpath(base_path() . DIRECTORY_SEPARATOR . 'public');
+        $updates = array();
+
+        $vas = OmimInstance::all();
+        foreach ($vas as $va) {
+            $bootstrap = $publicpath . DIRECTORY_SEPARATOR . $va->slug . DIRECTORY_SEPARATOR . 'bootstrap.php';
+            $contents = file_get_contents($bootstrap);
+            preg_match("/define\('OMEKA_VERSION'\, '2\.[0-6]{1}\.[0-9]{1}'\)\;/", $contents, $matches);
+            if (!empty($matches)) {
+                copy(
+                    $datapath . DIRECTORY_SEPARATOR . 'bootstrap.php',
+                    $publicpath . DIRECTORY_SEPARATOR . $va->slug . DIRECTORY_SEPARATOR . 'bootstrap.php'
+                );
+                $updates[] = $va;
+            }
+
+        }
+
+        unlink($datapath . DIRECTORY_SEPARATOR . 'bootstrap.php');
+        return View::make('migrate.migrateomekaversion', compact('updates'));
+    }
+
 }

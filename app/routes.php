@@ -36,6 +36,7 @@ Route::group(array('before' => 'auth'), function(){
 });
 Route::group(array('before' => 'auth'), function(){
     Route::controller('migrate', 'MigrationController');
+    Route::get('migrate/migrateomekaversion', 'MigrationController@getMigrateomekaversion');
 });
 Route::group(array('before' => 'auth'), function(){
     Route::controller('migratelatest', 'MigrationlatestController');
