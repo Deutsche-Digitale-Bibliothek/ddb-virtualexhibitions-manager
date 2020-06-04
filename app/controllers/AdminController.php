@@ -70,8 +70,17 @@ class AdminController extends \BaseController {
         }
         $users = OmimOmekaUser::all();
         $colorPalettes = OmimExhibitColorPalette::all();
+        $showNames = array();
+        foreach ($colorPalettes as $colorPaletteKey => $colorPalette) {
+            preg_match('/custom_([^_]+_)(.*)/', $colorPalette['palette'], $matches);
+            if (count($matches) === 3) {
+                $showNames[$colorPaletteKey] = $matches[2];
+            } else {
+                $showNames[$colorPaletteKey] = $colorPalette['palette'];
+            }
+        }
         // var_dump($colorPalettes);
-        return View::make('admin.create', compact('users', 'colorPalettes'));
+        return View::make('admin.create', compact('users', 'colorPalettes', 'showNames'));
     }
 
     /**
@@ -134,10 +143,12 @@ class AdminController extends \BaseController {
             $instance->state = 'active';
             $instance->version = $this->omimVersion;
             $instance->exhibit_type	= $input['exhibit_type'];
-            if (isset($input['color_palette']) && !empty($input['color_palette'])) {
-                $instance->color_palette = $input['color_palette'];
-            } elseif ($input['exhibit_type'] === 'litfass_ddb') {
+            if ($input['exhibit_type'] === 'litfass_ddb') {
                 $instance->color_palette = 'ddb';
+            } elseif (isset($input['color_palette']) && !empty($input['color_palette'])) {
+                $instance->color_palette = $input['color_palette'];
+            } else {
+                $instance->color_palette = 'a';
             }
             $instance->save();
 
@@ -248,6 +259,24 @@ class AdminController extends \BaseController {
                             )
                         );
                     }
+                }
+            }
+
+            // insert selected color palette
+            if (isset($input['exhibit_type']) && $input['exhibit_type'] !== 'leporello') {
+                $colorPalettes = OmimExhibitColorPalette::where('palette', $instance->color_palette)->get()->toArray();
+                foreach ($colorPalettes as $colorPalette) {
+                    DB::insert('insert into omeka_exh' . $instance->id . '_exhibit_color_palettes '
+                        . '(`palette`, `color`, `hex`, `type`, `menu`) '
+                        . 'values (?, ?, ?, ?, ?)',
+                        array(
+                            $colorPalette['palette'],
+                            $colorPalette['color'],
+                            $colorPalette['hex'],
+                            $colorPalette['type'],
+                            $colorPalette['menu']
+                        )
+                    );
                 }
             }
 
@@ -1379,6 +1408,206 @@ class AdminController extends \BaseController {
             echo 'Konfigurationsdatei enthält Fehler! - Pfad zum SSH Schlüssel nicht definiert.' . "<br>\n";
             return false;
         }
+    }
+
+    public function getColorpalettesList()
+    {
+        if (Auth::user()->isroot != 1) {
+            return Redirect::to('admin')->with('error-message',
+                'Sie haben keine Berechtigung, die Ressource \'admin/colorpalettes-list\' zu verwenden.');
+        }
+        // $colorPalettes = OmimExhibitColorPalette::all();
+        $colorPalettes = OmimExhibitColorPalette::where('palette', 'like', 'custom_%')->get()->toArray();
+        foreach ($colorPalettes as $colorPaletteKey => $colorPalette) {
+            preg_match('/custom_([^_]+_)(.*)/', $colorPalette['palette'], $matches);
+            $colorPalettes[$colorPaletteKey]['show_name'] = $matches[2];
+        }
+        return View::make('admin.colorpalettes-list', compact('colorPalettes'));
+    }
+
+    public function getColorpalettesCreate()
+    {
+        if (Auth::user()->isroot != 1) {
+            return Redirect::to('admin')->with('error-message',
+            'Sie haben keine Berechtigung, die Ressource \'admin/colorpalettes-create\' zu verwenden.');
+        }
+        // $colorPalettes = OmimExhibitColorPalette::all();
+        $paletteName = uniqid();
+        return View::make('admin.colorpalettes-create', compact('paletteName'));
+    }
+
+    public function postColorpalettesCreate()
+    {
+        if (Auth::user()->isroot != 1) {
+            return Redirect::to('admin')->with('error-message',
+            'Sie haben keine Berechtigung, die Ressource \'admin/colorpalettes-create\' zu verwenden.');
+        }
+        $input = Input::all();
+        if (!isset($input['palette_palette']) || empty($input['palette_palette']) ||
+            !isset($input['palette_palette_showname']) || empty($input['palette_palette_showname']) ||
+            !isset($input['palette']) || empty($input['palette'])) {
+            return Redirect::to('admin/colorpalettes-list')->with('error-message',
+            'Es wurde kein Name oder keine Farbe für die Palette übermittelt.');
+        }
+        $input['palette_palette_showname'] = preg_replace('/[^a-zA-Z0-9]/', '', $input['palette_palette_showname']);
+        if (!isset($input['palette_palette_showname']) || empty($input['palette_palette_showname'])) {
+            return Redirect::to('admin/colorpalettes-list')->with('error-message',
+            'Es wurde kein Name für die Palette übermittelt.');
+        }
+        $paletteName = 'custom_' . $input['palette_palette'] . '_' . $input['palette_palette_showname'];
+        $test = OmimExhibitColorPalette::where('palette', $paletteName)->get();
+        if (count($test) > 0) {
+            $paletteName = 'custom_' . uniqid() . '_' . $input['palette_palette_showname'];
+        }
+        // var_dump($input, $paletteName);
+        // return;
+        $uniquePalette = $this->makeUniqueColors($input['palette']);
+        foreach ($uniquePalette as $colorKey => $color) {
+            $color['color'] = preg_replace('/[^a-z0-9_\-]/', '', strtolower($color['color']));
+            // if (empty($color['color'])) {
+            //     $color['color'] = uniqid('c_');
+            // }
+            if (isset($color['hex']) && !empty($color['hex']) &&
+                isset($color['color']) && !empty($color['color']) &&
+                isset($color['type']) && !empty($color['type'])) {
+
+                    $exhibitColorPalette = new OmimExhibitColorPalette;
+                    $exhibitColorPalette->palette = $paletteName;
+                    $exhibitColorPalette->color = $color['color'];
+                    $exhibitColorPalette->hex = $color['hex'];
+                    $exhibitColorPalette->type = $color['type'];
+                    if ($colorKey == $input['palette_menu']) {
+                        $exhibitColorPalette->menu = 1;
+                    } else {
+                        $exhibitColorPalette->menu = 0;
+                    }
+                    $exhibitColorPalette->save();
+
+            }
+        }
+
+        return Redirect::to('admin/colorpalettes-list')
+            ->with('success-message', 'Farbpalette erfolgreich gespeichert.');
+    }
+
+    public function getColorpalettesEdit()
+    {
+        if (Auth::user()->isroot != 1) {
+            return Redirect::to('admin')->with('error-message',
+            'Sie haben keine Berechtigung, die Ressource \'admin/colorpalettes-create\' zu verwenden.');
+        }
+
+        // Check if user has selected a palette
+        $palette = Input::get('palette');
+        if (!isset($palette) || empty($palette)) {
+            return Redirect::to('admin/colorpalettes-list')->with('error-message',
+                'Bitte wählen Sie eine Farbplatte, die Sie bearbeiten möchten.');
+        }
+
+        preg_match('/custom_([^_]+_)(.*)/', $palette, $matches);
+        if (!isset($matches[2]) || empty($matches[2])) {
+            return Redirect::to('admin/colorpalettes-list')->with('error-message',
+                'Die von Ihnen gewählte Farbplatte kann nicht editiert werden.');
+        }
+        $paletteShowName = $matches[2];
+
+        // Check if the palette is in the DB
+        $dbPalette = OmimExhibitColorPalette::where('palette', $palette)->get();
+        if (!isset($dbPalette) || empty($dbPalette) || count($dbPalette) == 0) {
+            return Redirect::to('admin/colorpalettes-list')->with('error-message',
+            'Die von Ihnen gewählte Farbplatte existiert nicht in der Datenbank.');
+        }
+        $dbPalette->toArray();
+        $paletteCounter = count($dbPalette);
+
+        // $colorPalettes = OmimExhibitColorPalette::all();
+        return View::make('admin.colorpalettes-edit', compact('palette', 'dbPalette', 'paletteCounter', 'paletteShowName'));
+    }
+
+    public function postColorpalettesEdit()
+    {
+        if (Auth::user()->isroot != 1) {
+            return Redirect::to('admin')->with('error-message',
+            'Sie haben keine Berechtigung, die Ressource \'admin/colorpalettes-create\' zu verwenden.');
+        }
+
+        $input = Input::all();
+
+        // delete
+        if (isset($input['palette_oldpalette']) && isset($input['delete_palette']) &&
+            $input['palette_oldpalette'] === $input['delete_palette']) {
+                $deletedColors = OmimExhibitColorPalette::where('palette', $input['palette_oldpalette'])->delete();
+                return Redirect::to('admin/colorpalettes-list')->with(
+                    'success-message',
+                    'Farbpalette erfolgreich gelöscht. Es wurden ' . $deletedColors . ' Farben entfernt.');
+        }
+
+        if (!isset($input['palette_oldpalette'])|| empty($input['palette_oldpalette']) ||
+            !isset($input['palette_palette_showname']) || empty($input['palette_palette_showname'])) {
+            return Redirect::to('admin/colorpalettes-list')->with('error-message',
+            'Name der Palette wurde nicht übermittelt.');
+        }
+
+        // palette name
+        preg_match('/custom_([^_]+_)(.*)/', $input['palette_oldpalette'], $matches);
+        if (isset($matches[2]) && $matches[2] == $input['palette_palette_showname']) {
+            $paletteName = $input['palette_oldpalette'];
+        } else {
+            $input['palette_palette_showname'] = preg_replace('/[^a-zA-Z0-9]/', '', $input['palette_palette_showname']);
+            if (!isset($input['palette_palette_showname']) || empty($input['palette_palette_showname'])) {
+                return Redirect::to('admin/colorpalettes-list')->with('error-message',
+                'Es wurde kein Name für die Palette übermittelt.');
+            }
+            if (isset($matches[1])) {
+                $paletteName = 'custom_' . $matches[1] . '_' . $input['palette_palette_showname'];
+                $test = OmimExhibitColorPalette::where('palette', $paletteName)->get();
+                if (count($test) > 0) {
+                    $paletteName = 'custom_' . uniqid() . '_' . $input['palette_palette_showname'];
+                }
+            } else {
+                $paletteName = 'custom_' . uniqid() . '_' . $input['palette_palette_showname'];
+            }
+        }
+
+        $deletedColors = OmimExhibitColorPalette::where('palette', $input['palette_oldpalette'])->delete();
+
+        $uniquePalette = $this->makeUniqueColors($input['palette']);
+        foreach ($uniquePalette as $colorKey => $color) {
+            $color['color'] = preg_replace('/[^a-z0-9_\-]/', '', strtolower($color['color']));
+            if (isset($color['hex']) && !empty($color['hex']) &&
+                isset($color['color']) && !empty($color['color']) &&
+                isset($color['type']) && !empty($color['type'])) {
+
+                    $exhibitColorPalette = new OmimExhibitColorPalette;
+                    $exhibitColorPalette->palette = $paletteName;
+                    $exhibitColorPalette->color = $color['color'];
+                    $exhibitColorPalette->hex = $color['hex'];
+                    $exhibitColorPalette->type = $color['type'];
+                    if ($colorKey == $input['palette_menu']) {
+                        $exhibitColorPalette->menu = 1;
+                    } else {
+                        $exhibitColorPalette->menu = 0;
+                    }
+                    $exhibitColorPalette->save();
+            }
+        }
+
+        return Redirect::to('admin/colorpalettes-list')
+            ->with('success-message', 'Farbpalette erfolgreich gespeichert.');
+    }
+
+    public function makeUniqueColors($palette)
+    {
+        $paletteCopy = $palette;
+        foreach ($palette as $colorKey => $color) {
+            foreach ($paletteCopy as $copyKey => $copyColor) {
+                if ($color['color'] == $copyColor['color'] && $colorKey != $copyKey) {
+                    $palette[$colorKey]['color'] = $color['color'] . '_' . uniqid();
+                    $color['color'] = $palette[$colorKey]['color'];
+                }
+            }
+        }
+        return $palette;
     }
 
 }

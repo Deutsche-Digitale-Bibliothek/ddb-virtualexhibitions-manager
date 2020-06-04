@@ -112,8 +112,8 @@
                             </tr>
                         </thead>
                         <tbody>
-                        <?php $currentPalette = ''; ?>
-                        @foreach ($colorPalettes as $colorPalette)
+                        <?php $currentPalette = ''; $paletteChecked = true; ?>
+                        @foreach ($colorPalettes as $paletteKey => $colorPalette)
                             @if ($colorPalette->palette == 'ddb')
                                 <?php continue; ?>
                             @endif
@@ -123,14 +123,15 @@
                                 @endif
                             <tr>
                                 <td>
-                                    {{ Form::radio('color_palette', $colorPalette->palette) }}
+                                    {{ Form::radio('color_palette', $colorPalette->palette, $paletteChecked) }}
+                                    <?php $paletteChecked = false; ?>
                                 </td>
-                                <td>{{$colorPalette->palette}}</td>
+                                <td>{{$showNames[$paletteKey]}}</td>
                                 <td>
                                 <?php $currentPalette = $colorPalette->palette; ?>
                             @endif
                                 <div class="colorpalette-color"
-                                    style="background-color:{{$colorPalette->hex}};color:#@if ($colorPalette->type === 'dark')fff @else 000 @endif">
+                                    style="background-color:{{$colorPalette->hex}};color:#@if ($colorPalette->type === 'dark')fff @else 000 @endif;@if ($colorPalette->menu === 1)border-width:3px!important;@else @endif">
                                     {{$colorPalette->color}}
                                 </div>
                         @endforeach

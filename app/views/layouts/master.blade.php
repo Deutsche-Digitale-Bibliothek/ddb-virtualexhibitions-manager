@@ -38,6 +38,8 @@
                                     {{ HTML::link('admin/imprint', 'Impressum bearbeiten') }}</li>
                                 <li{{ Request::is('admin/consent') ? ' class="active"' : '' }}>
                                     {{ HTML::link('admin/consent', 'Einverständniserklärung bearbeiten') }}</li>
+                                <li{{ Request::is('admin/colorpalettes-list') ? ' class="active"' : '' }}>
+                                    {{ HTML::link('admin/colorpalettes-list', 'Farbpaletten') }}</li>
                                 <li{{ Request::is('migrate/migrateomekaversion') ? ' class="active"' : '' }}>
                                     {{ HTML::link('migrate/migrateomekaversion', 'Omekaversionen aktualisieren') }}</li>
                                 @endif
