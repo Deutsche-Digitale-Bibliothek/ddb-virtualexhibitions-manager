@@ -47,7 +47,7 @@
                         <div class="form-group">
                             <label for="palette_hex_{{$pk}}">Farbwert</label>
                             <div id="colorpicker_{{$pk}}" class="input-group colorpicker-component">
-                                <input type="text" value="{{$color['hex']}}" class="form-control" id="palette_hex_{{$pk}} "
+                                <input type="text" value="{{$color['hex']}}" class="form-control" id="palette_hex_{{$pk}}"
                                 name="palette[{{$pk}}][hex]">
                                 <span class="input-group-addon"><i></i></span>
                             </div>
@@ -80,7 +80,7 @@
             <div class="panel panel-default">
                 <div class="panel-body gina-form">
                     <div class="form-group">
-                        <button class="btn btn-success btn-block" id="addColor">
+                        <button class="btn btn-info btn-block" id="addColor">
                             <span class="glyphicon glyphicon-plus"></span> Farbe hinzufügen
                         </button>
                     </div>
@@ -130,7 +130,7 @@
                         '<div class="form-group">' +
                             '<label for="palette_hex_' + colorCounter + '">Farbwert</label>' +
                             '<div id="colorpicker_' + colorCounter + '" class="input-group colorpicker-component">' +
-                                '<input type="text" value="#666666" class="form-control" id="palette_hex_' + colorCounter + ' "' +
+                                '<input type="text" value="#666666" class="form-control" id="palette_hex_' + colorCounter + '" ' +
                                 'name="palette[' + colorCounter + '][hex]">' +
                                 '<span class="input-group-addon"><i></i></span>' +
                             '</div>' +
