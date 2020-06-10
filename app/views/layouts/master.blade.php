@@ -42,6 +42,8 @@
                                     {{ HTML::link('admin/colorpalettes-list', 'Farbpaletten') }}</li>
                                 <li{{ Request::is('migrate/migrateomekaversion') ? ' class="active"' : '' }}>
                                     {{ HTML::link('migrate/migrateomekaversion', 'Omekaversionen aktualisieren') }}</li>
+                                <li{{ Request::is('migrate/update') ? ' class="active"' : '' }}>
+                                    {{ HTML::link('migrate/update', 'Update aller Ausstellungen') }}</li>
                                 @endif
                             </ul>
                         </li>

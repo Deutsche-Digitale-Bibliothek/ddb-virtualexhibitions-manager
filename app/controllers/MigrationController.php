@@ -5,6 +5,7 @@ class MigrationController extends \BaseController {
 
     public $omimVersion = '1.0.0';
     public $msg = array();
+    public $vas = null;
 
     /**
      * Migrate to current version
@@ -726,6 +727,84 @@ class MigrationController extends \BaseController {
 
         unlink($datapath . DIRECTORY_SEPARATOR . 'bootstrap.php');
         return View::make('migrate.migrateomekaversion', compact('updates'));
+    }
+
+    public function getUpdate()
+    {
+        // Only users with root privileges are allowed to migrate
+        if (Auth::user()->isroot != 1) {
+            return Redirect::to('admin')->with('error-message',
+                'Sie haben keine Berechtigung, die Ressource \'admin/create\' zu verwenden.');
+        }
+
+        $msgs = array();
+        $this->vas = OmimInstance::all();
+
+        $this->updateColorPalette();
+        $this->updateExhibitColorPalettes();
+
+        $msgs[] = 'Farbpaletten in allen Ausstellugen aktualisiert.';
+
+        $this->updatePagesOrder();
+
+        $msgs[] = 'Feld für die Reihenfolge der Ausstellungsseiten in allen Ausstellugen aktualisiert.';
+
+        $this->updateAdminMailAddress();
+
+        $msgs[] = 'Admin-Email-Adresse in allen Ausstellugen aktualisiert.';
+
+        return View::make('migrate.update', compact('msgs'));
+    }
+
+    public function updateColorPalette()
+    {
+        OmimExhibitColorPalette::where('palette', 'ddb')
+            ->where('color', 'white')
+            ->update(['hex' => '#ffffff']);
+    }
+
+    public function updateExhibitColorPalettes()
+    {
+        foreach ($this->vas as $va) {
+            $hasColorPalettes = DB::select('show tables like "omeka_exh' . $va->id . '_exhibit_color_palettes"');
+            if (!empty($hasColorPalettes)) {
+
+                $updateDdbWhite = DB::update('update omeka_exh' . $va->id . '_exhibit_color_palettes '
+                . 'set hex = \'#ffffff\' where palette = ? AND color = ?', array('ddb', 'white'));
+
+                $hasBaseColors = DB::select('select * from omeka_exh' . $va->id . '_exhibit_color_palettes '
+                    . 'where palette = ? AND (color = ? OR color = ?)', array('base', 'white', 'lightgray'));
+
+                if (empty($hasBaseColors)) {
+                    DB::insert('insert into omeka_exh' . $va->id . '_exhibit_color_palettes '
+                        . '(palette, color, hex, type, menu) values (?, ?, ?, ?, ?)',
+                        array('base', 'white', '#ffffff', 'light', 0));
+                    DB::insert('insert into omeka_exh' . $va->id . '_exhibit_color_palettes '
+                        . '(palette, color, hex, type, menu) values (?, ?, ?, ?, ?)',
+                        array('base', 'lightgray', '#eeeeee', 'light', 0));
+                }
+            }
+        }
+    }
+
+    public function updatePagesOrder()
+    {
+        foreach ($this->vas as $va) {
+            $exhibitPages = DB::select('DESCRIBE omeka_exh' . $va->id . '_exhibit_pages');
+            foreach ($exhibitPages as $exhibitPage) {
+                if ($exhibitPage->Field === 'order' && $exhibitPage->Type === 'tinyint(3) unsigned') {
+                    DB::statement('ALTER TABLE omeka_exh' . $va->id . '_exhibit_pages CHANGE `order` `order` int unsigned NOT NULL AFTER `layout`');
+                }
+            }
+        }
+    }
+
+    public function updateAdminMailAddress()
+    {
+        foreach ($this->vas as $va) {
+            $updateMailAddress = DB::update('update omeka_exh' . $va->id . '_options '
+                . 'set value = \'ddbstudio@deutsche-digitale-bibliothek.de\' where name = ?', array('administrator_email'));
+        }
     }
 
 }
