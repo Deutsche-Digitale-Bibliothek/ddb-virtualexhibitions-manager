@@ -20,8 +20,3 @@ composer.lock
 .DS_Store
 Thumbs.db
 lib/*
-consent_privacypolicy.html
-consent_termsofuse.html
-imprint_litfass.html
-imprint_litfass_ddb.html
-imprint_litfass_featured.html

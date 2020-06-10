@@ -11,3 +11,8 @@ test-video.php
 data/db/backup/*
 temp
 instanzen
+consent_privacypolicy.html
+consent_termsofuse.html
+imprint_litfass.html
+imprint_litfass_ddb.html
+imprint_litfass_featured.html
