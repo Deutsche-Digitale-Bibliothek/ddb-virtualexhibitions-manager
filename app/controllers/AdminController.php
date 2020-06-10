@@ -970,7 +970,14 @@ class AdminController extends \BaseController {
 
     protected function readImprintFile($name)
     {
-        return file_get_contents(base_path('data/imprint_' . $name . '.html'));
+        $contents = false;
+        if (is_file(base_path('data/imprint_' . $name . '.html'))) {
+            $contents = file_get_contents(base_path('data/imprint_' . $name . '.html'));
+        }
+        if ($contents === false) {
+            $contents = '';
+        }
+        return $contents;
     }
 
     protected function writeImprintFile($contents)
@@ -1055,7 +1062,14 @@ class AdminController extends \BaseController {
 
     protected function readConsentFile($name)
     {
-        return file_get_contents(base_path('data/consent_' . $name . '.html'));
+        $contents = false;
+        if (is_file(base_path('data/consent_' . $name . '.html'))) {
+            $contents = file_get_contents(base_path('data/consent_' . $name . '.html'));
+        }
+        if ($contents === false) {
+            $contents = '';
+        }
+        return $contents;
     }
 
     protected function writeConsentFile($contents)
