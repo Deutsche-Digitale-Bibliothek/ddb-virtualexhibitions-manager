@@ -38,7 +38,7 @@
                         <div class="form-group">
                             <label for="palette_color_{{$pk}}">Name der Farbe</label>
                             <input type="text" class="form-control" id="palette_color_{{$pk}}"
-                                name="palette[{{$pk}}][color]" value="{{$color['color']}}" required>
+                                name="palette[{{$pk}}][color]" value="{{$color['color']}}" required maxlength="128">
                             <span class="help-block">
                                 Der Name muss innerhalb der Palette einzigartig sein.
                                 Erlaubt sind Kleinbuchstaben a-z (ohne Umlaute), Zahlen sowie "_" und "-"
@@ -48,7 +48,7 @@
                             <label for="palette_hex_{{$pk}}">Farbwert</label>
                             <div id="colorpicker_{{$pk}}" class="input-group colorpicker-component">
                                 <input type="text" value="{{$color['hex']}}" class="form-control" id="palette_hex_{{$pk}}"
-                                name="palette[{{$pk}}][hex]" required>
+                                name="palette[{{$pk}}][hex]" required maxlength="7">
                                 <span class="input-group-addon"><i></i></span>
                             </div>
                         </div>
@@ -121,7 +121,7 @@
                         '<div class="form-group">' +
                             '<label for="palette_color_' + colorCounter + '">Name der Farbe</label>' +
                             '<input type="text" class="form-control" id="palette_color_' + colorCounter + '" ' +
-                                'name="palette[' + colorCounter + '][color]" required>' +
+                                'name="palette[' + colorCounter + '][color]" required maxlength="128">' +
                             '<span class="help-block">' +
                                 'Der Name muss innerhalb der Palette einzigartig sein. ' +
                                 'Erlaubt sind Kleinbuchstaben a-z (ohne Umlaute), Zahlen sowie "_" und "-"' +
@@ -131,7 +131,7 @@
                             '<label for="palette_hex_' + colorCounter + '">Farbwert</label>' +
                             '<div id="colorpicker_' + colorCounter + '" class="input-group colorpicker-component">' +
                                 '<input type="text" value="#666666" class="form-control" id="palette_hex_' + colorCounter + '" ' +
-                                'name="palette[' + colorCounter + '][hex]" required>' +
+                                'name="palette[' + colorCounter + '][hex]" required maxlength="7">' +
                                 '<span class="input-group-addon"><i></i></span>' +
                             '</div>' +
                         '</div>' +

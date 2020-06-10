@@ -70,7 +70,7 @@
                         '<div class="form-group">' +
                             '<label for="palette_color_' + colorCounter + '">Name der Farbe</label>' +
                             '<input type="text" class="form-control" id="palette_color_' + colorCounter + '" ' +
-                                'name="palette[' + colorCounter + '][color]" required>' +
+                                'name="palette[' + colorCounter + '][color]" required maxlength="128">' +
                             '<span class="help-block">' +
                                 'Der Name muss innerhalb der Palette einzigartig sein. ' +
                                 'Erlaubt sind Kleinbuchstaben a-z (ohne Umlaute), Zahlen sowie "_" und "-"' +
@@ -80,7 +80,7 @@
                             '<label for="palette_hex_' + colorCounter + '">Farbwert</label>' +
                             '<div id="colorpicker_' + colorCounter + '" class="input-group colorpicker-component">' +
                                 '<input type="text" value="#666666" class="form-control" id="palette_hex_' + colorCounter + '" ' +
-                                'name="palette[' + colorCounter + '][hex]" required>' +
+                                'name="palette[' + colorCounter + '][hex]" required maxlength="7">' +
                                 '<span class="input-group-addon"><i></i></span>' +
                             '</div>' +
                         '</div>' +
