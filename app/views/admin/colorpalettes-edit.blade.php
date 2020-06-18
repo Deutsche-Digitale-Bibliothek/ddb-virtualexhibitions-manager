@@ -55,8 +55,8 @@
                         <div class="form-group">
                             <label for="palette_type_{{$pk}}">Typ der Farbe</label>
                             <select class="form-control" id="palette_type_{{$pk}}" name="palette[{{$pk}}][type]">
-                                <option value="light" @if ($color['type'] == 'light') {{ selected }}@endif>hell</option>
-                                <option value="dark" @if ($color['type'] == 'dark') {{ selected }}@endif>dunkel</option>
+                                <option value="light" @if ($color['type'] == 'light') selected @endif>hell</option>
+                                <option value="dark" @if ($color['type'] == 'dark') selected @endif>dunkel</option>
                             </select>
                             <span class="help-block">
                                 &quot;hell&quot;: Helle Hintergrundfarbe mit dunkler Schrift.<br>
