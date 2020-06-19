@@ -68,7 +68,7 @@
                             <div class="radio">
                                 <label>
                                     <input type="radio" name="palette_menu" id="palette_menu_{{$pk}}" value="{{$pk}}"
-                                    @if ($color['menu'] == '1') {{ checked }}@endif>
+                                    @if ($color['menu'] == '1') checked @endif>
                                     Diese Farbe als Farbe für aktive Felder im Navigationsmenü verwenden.
                                 </label>
                             </div>
