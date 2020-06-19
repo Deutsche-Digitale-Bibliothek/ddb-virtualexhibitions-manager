@@ -1431,7 +1431,7 @@ class AdminController extends \BaseController {
                 'Sie haben keine Berechtigung, die Ressource \'admin/colorpalettes-list\' zu verwenden.');
         }
         // $colorPalettes = OmimExhibitColorPalette::all();
-        $colorPalettes = OmimExhibitColorPalette::where('palette', 'like', 'custom_%')->get()->toArray();
+        $colorPalettes = OmimExhibitColorPalette::where('palette', 'like', 'custom_%')->orderBy('palette', 'DESC')->get()->toArray();
         foreach ($colorPalettes as $colorPaletteKey => $colorPalette) {
             preg_match('/custom_([^_]+_)(.*)/', $colorPalette['palette'], $matches);
             $colorPalettes[$colorPaletteKey]['show_name'] = $matches[2];
@@ -1477,10 +1477,7 @@ class AdminController extends \BaseController {
         // return;
         $uniquePalette = $this->makeUniqueColors($input['palette']);
         foreach ($uniquePalette as $colorKey => $color) {
-            $color['color'] = preg_replace('/[^a-z0-9_\-]/', '', strtolower($color['color']));
-            // if (empty($color['color'])) {
-            //     $color['color'] = uniqid('c_');
-            // }
+            $color['color'] = $this->filterColorName($color['color']);
             if (isset($color['hex']) && !empty($color['hex']) &&
                 isset($color['color']) && !empty($color['color']) &&
                 isset($color['type']) && !empty($color['type'])) {
@@ -1587,7 +1584,7 @@ class AdminController extends \BaseController {
 
         $uniquePalette = $this->makeUniqueColors($input['palette']);
         foreach ($uniquePalette as $colorKey => $color) {
-            $color['color'] = preg_replace('/[^a-z0-9_\-]/', '', strtolower($color['color']));
+            $color['color'] = $this->filterColorName($color['color']);
             if (isset($color['hex']) && !empty($color['hex']) &&
                 isset($color['color']) && !empty($color['color']) &&
                 isset($color['type']) && !empty($color['type'])) {
@@ -1608,6 +1605,15 @@ class AdminController extends \BaseController {
 
         return Redirect::to('admin/colorpalettes-list')
             ->with('success-message', 'Farbpalette erfolgreich gespeichert.');
+    }
+
+    public function filterColorName($color)
+    {
+        $color = preg_replace('/[^a-z0-9_\-]/', '', strtolower($color));
+        if (preg_match('/^[0-9]+/', $color)) {
+            $color = 'c' . $color;
+        }
+        return $color;
     }
 
     public function makeUniqueColors($palette)
