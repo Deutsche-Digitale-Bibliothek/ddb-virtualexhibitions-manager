@@ -1597,6 +1597,9 @@ class AdminController extends \BaseController {
                     $exhibitColorPalette->color = $color['color'];
                     $exhibitColorPalette->hex = $color['hex'];
                     $exhibitColorPalette->type = $color['type'];
+                    if (!isset($input['palette_menu'])) {
+                        $input['palette_menu'] = $colorKey;
+                    }
                     if ($colorKey == $input['palette_menu']) {
                         $exhibitColorPalette->menu = 1;
                     } else {
