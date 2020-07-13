@@ -36,6 +36,7 @@ class MigrationlatestController extends \BaseController {
 
         // Check for necessary migrations
         $this->migrateOmekaUsers($va);
+        $this->migrateExhibitId($va);
 
         // Manage migration messages
         if (empty($this->msg)) {
@@ -65,6 +66,26 @@ class MigrationlatestController extends \BaseController {
                 '<span class="text-danger glyphicon glyphicon-exclamation-sign"></span> ' .
                 '<strong>Etwas stimmt nicht!</strong> Rückgabe Wert: <div>' . $result . '</div>';
             $this->msg['Tabelle omeka_users'][] = 'Feld "confirm_use" hinzufügen: ' . $resmsg;
+        }
+    }
+
+    public function migrateExhibitId($va)
+    {
+        $exhibits = DB::select('SELECT id FROM omeka_exh' . $va->id . '_exhibits');
+        if (count($exhibits) === 1 && $exhibits[0]->id !== 1) {
+            try {
+                $resultA = DB::statement('UPDATE omeka_exh' . $va->id .
+                    '_exhibits SET id = 1 WHERE id = ' . $exhibits[0]->id);
+                $resultB = DB::statement('UPDATE omeka_exh' . $va->id .
+                    '_exhibit_pages SET `exhibit_id` = 1 WHERE `exhibit_id` = '. $exhibits[0]->id);
+            } catch (\Throwable $th) {
+                $result = $th;
+            }
+            $resmsg = ($resultA === true && $resultB === true)?
+            '<span class="text-success glyphicon glyphicon-ok"></span>' :
+            '<span class="text-danger glyphicon glyphicon-exclamation-sign"></span> ' .
+            '<strong>Etwas stimmt nicht!</strong> Rückgabe Wert: <div>' . $result . '</div>';
+            $this->msg['Tabelle exhibits und exhibit_pages'][] = 'Feld "id" auf 1 setzen: ' . $resmsg;
         }
     }
 
