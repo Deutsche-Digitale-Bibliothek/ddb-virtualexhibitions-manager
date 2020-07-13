@@ -888,6 +888,21 @@ class AdminController extends \BaseController {
             $dbtables[] = 'omeka_exh' . $va->id . '_' . $dbtable;
         }
 
+        $tables = array();
+        $retval = false;
+        $cmd = 'mysql -N' .
+            ' -u' . $configLocalDb['connections']['mysql']['username'] .
+            ' -p' . $configLocalDb['connections']['mysql']['password'] .
+            ' --socket=' . $configLocalDb['connections']['mysql']['unix_socket'] .
+            ' information_schema -e "' .
+            'SELECT TABLE_NAME FROM TABLES WHERE TABLE_SCHEMA = \'' .
+            $configLocalDb['connections']['mysql']['database'] . '\' ' .
+            'AND TABLE_NAME LIKE \'omeka\_exh' . $va->id . '\_%\'"';
+        exec($cmd, $tables, $retval);
+        if ($retval === 0 && !empty($tables)) {
+            $dbtables = $tables;
+        }
+
         /**
          * generate dump with the DB tables
          */
