@@ -508,7 +508,7 @@ class AdminController extends \BaseController {
             );
             $replace = array(
                 '<IfModule mod_expires.c>',
-                '   <FilesMatch "\.(js|ico|gif|jpg|png|css)$">',
+                '   <FilesMatch "\.(?i:js|ico|gif|jpg|jpeg|png|css|woff|woff2|ttf|eot|svg)$">',
                 '       ExpiresActive on',
                 '       ExpiresDefault "access plus 10 day"',
                 '   </FilesMatch>',
