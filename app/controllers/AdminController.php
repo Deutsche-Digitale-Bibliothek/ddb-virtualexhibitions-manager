@@ -433,7 +433,7 @@ class AdminController extends \BaseController {
                     if ($updateSkeleton != true) {
                         return Redirect::to('admin')->with('error-message',
                             'Es gab Probleme der Aktualisierung des Standard-Archivs ' .
-                            'auf Produktionserver Nr.' . $remoteSrvNo . '.');
+                            'auf Ausspielungsserver Nr.' . $remoteSrvNo . '.');
                     }
                 }
 
@@ -446,7 +446,7 @@ class AdminController extends \BaseController {
                     if ($updateSkeleton != true) {
                         return Redirect::to('admin')->with('error-message',
                             'Es gab Probleme der Aktualisierung des Standard-Archivs ' .
-                            'auf Produktionserver Nr.' . $remoteSrvNo . '.');
+                            'auf Ausspielungsserver Nr.' . $remoteSrvNo . '.');
                     }
                 }
 
@@ -577,7 +577,7 @@ class AdminController extends \BaseController {
 
                 if ($uploadMainFile != true) {
                     return Redirect::to('admin')->with('error-message',
-                        'Es gab Probleme beim Upload der Instanz auf den Produktionserver Nr.' . $remoteSrvNo . '.');
+                        'Es gab Probleme beim Upload der Instanz auf den Ausspielungsserver Nr.' . $remoteSrvNo . '.');
                 } else {
 
                     // Extract files on remote server
@@ -737,6 +737,15 @@ class AdminController extends \BaseController {
             // $configProductionDb = $configOmim['production']['db'];
             $msg = '';
 
+
+            /**
+             * Also delete from production (Ausspielungsserver) if
+             * delete from development (Redaktionsserver) == ok
+             */
+            if (isset($delDevelopment) && $delDevelopment == 'ok') {
+                $delProduktion = 'ok';
+            }
+
             /**
              * Delete from production
              */
@@ -788,7 +797,7 @@ class AdminController extends \BaseController {
                     $va->save();
                 }
 
-                $msg .= 'Ausstellung vom Produktionsserver gelöscht.<br>';
+                $msg .= 'Ausstellung vom Ausspielungsserver gelöscht.<br>';
 
             }
 
@@ -818,7 +827,7 @@ class AdminController extends \BaseController {
                  */
                 $va->delete();
 
-                $msg .= 'Ausstellung vom Entwicklungsserver gelöscht.<br>';
+                $msg .= 'Ausstellung vom Redaktionsserver gelöscht.<br>';
 
             }
 

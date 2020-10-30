@@ -3,7 +3,7 @@
 @section('content')
         <div class="jumbotron text-center">
             <h1 style="">Ausstellungen Veröffentlichen</h1>
-            <p>Hier können Sie Ausstellung auf den Produktionsserver übertragen, d.h. live schalten und damit publik machen!</p>
+            <p>Hier können Sie Ausstellung auf die Ausspielungsserver übertragen!</p>
         </div>
         <?php  // var_dump($configPublish); ?>
 <!--         <div class="panel-group" id="instancelist" role="tablist" aria-multiselectable="true">
@@ -23,9 +23,9 @@
                         <small>{{{ $va->subtitle }}}</small></h2>
                         <div class="list-group">
                             @if ($va->last_unpublished_at && $va->last_unpublished_at > $va->last_published_at)
-                            Zuletzt vom Produktivserver gelöscht am: <?php echo date('d.m.Y \u\m H:i:s', strtotime($va->last_unpublished_at)); ?> Uhr
+                            Zuletzt von den Ausspielungsservern gelöscht am: <?php echo date('d.m.Y \u\m H:i:s', strtotime($va->last_unpublished_at)); ?> Uhr
                             @elseif ($va->last_published_at)
-                            Zuletzt auf Produktivserver veröffentlicht am: <?php echo date('d.m.Y \u\m H:i:s', strtotime($va->last_published_at)); ?> Uhr
+                            Zuletzt auf Ausspielungsservern veröffentlicht am: <?php echo date('d.m.Y \u\m H:i:s', strtotime($va->last_published_at)); ?> Uhr
                             @endif
                         </div>
                     </div>

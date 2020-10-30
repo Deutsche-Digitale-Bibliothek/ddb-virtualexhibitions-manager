@@ -3,7 +3,7 @@
 @section('content')
         <div class="jumbotron text-center">
             <h1 style="">Ausstellung Löschen</h1>
-            <p>Hier können Sie die Ausstellung auf dem Entwicklungs- und / oder auf dem Produktionsserver löschen.</p>
+            <p>Hier können Sie die Ausstellung auf dem Redaktions- und / oder auf den Ausspielungsservern löschen.</p>
         </div>
 
         <h1 class="page-header">{{{ $va->title }}}<br>
@@ -14,9 +14,9 @@
         <ul class="list-unstyled">
             <li><span class="glyphicon glyphicon-time" style="color:#666;"></span> Instanz erzeugt am <?php echo date('d.m.Y \u\m H:i:s', strtotime($va->created_at)); ?> Uhr.</li>
             @if ($va->last_unpublished_at && $va->last_unpublished_at > $va->last_published_at)
-            <li class="text-danger"><span class="glyphicon glyphicon-time" style="color:#666;"></span> Zuletzt vom Produktivserver gelöscht am: <?php echo date('d.m.Y \u\m H:i:s', strtotime($va->last_unpublished_at)); ?> Uhr.</li>
+            <li class="text-danger"><span class="glyphicon glyphicon-time" style="color:#666;"></span> Zuletzt von den Ausspielungsservern gelöscht am: <?php echo date('d.m.Y \u\m H:i:s', strtotime($va->last_unpublished_at)); ?> Uhr.</li>
             @elseif ($va->last_published_at)
-            <li class="text-success"><span class="glyphicon glyphicon-time" style="color:#666;"></span> Zuletzt auf Produktivserver veröffentlicht am: <?php echo date('d.m.Y \u\m H:i:s', strtotime($va->last_published_at)); ?> Uhr.</li>
+            <li class="text-success"><span class="glyphicon glyphicon-time" style="color:#666;"></span> Zuletzt auf den Ausspielungsservern veröffentlicht am: <?php echo date('d.m.Y \u\m H:i:s', strtotime($va->last_published_at)); ?> Uhr.</li>
             @endif
         </ul>
 
@@ -51,9 +51,9 @@
                             // 'class' => 'checkbox'
                             ))
                         }}
-                        Ausstellung vom <strong>Produktionsserver</strong> löschen!
-                        <span class="help-block">Die Ausstellung wird vom Produktionsserver gelöscht.<br>
-                            Falls sie die Ausstellung vom Entwicklungsserver nicht löschen, können Sie sie später wieder veröffentlichen.</span>
+                        Ausstellung von <strong>Ausspielungsservern</strong> löschen!
+                        <span class="help-block">Die Ausstellung wird von den Ausspielungsservern gelöscht.<br>
+                            Falls sie die Ausstellung vom Redaktionsserver nicht löschen, können Sie sie später wieder veröffentlichen.</span>
                     </label>
                 </div>
                 @endif
@@ -65,9 +65,9 @@
                             // 'class' => 'checkbox'
                             ))
                         }}
-                        Ausstellung vom <strong>Entwicklungsserver</strong> löschen!
-                        <span class="help-block">Die Ausstellung wird vom Entwicklungsserver gelöscht.<br>
-                            Wenn Sie die Ausstellung hier vom Entwicklungsserver löschen, können Sie diese auch nicht mehr veröffentlichen!</span>
+                        Ausstellung vom <strong>Redaktionsserver</strong> und von <strong>Ausspielungsservern</strong> den löschen!
+                        <span class="help-block">Die Ausstellung wird sowohl vom Redaktionsserver, als auch von den Ausspielungsservern gelöscht.<br>
+                            Wenn Sie die Ausstellung hier vom Redaktionsserver löschen, können Sie diese auch nicht mehr veröffentlichen!</span>
                     </label>
                 </div>
 
