@@ -65,7 +65,11 @@
                             // 'class' => 'checkbox'
                             ))
                         }}
-                        Ausstellung vom <strong>Redaktionsserver</strong> und von <strong>Ausspielungsservern</strong> den löschen!
+                        Ausstellung vom <strong>Redaktionsserver</strong>
+                        @if ($va->last_published_at && $va->last_unpublished_at < $va->last_published_at)
+                            und von den <strong>Ausspielungsservern</strong>
+                        @endif
+                        löschen!
                         <span class="help-block">Die Ausstellung wird sowohl vom Redaktionsserver, als auch von den Ausspielungsservern gelöscht.<br>
                             Wenn Sie die Ausstellung hier vom Redaktionsserver löschen, können Sie diese auch nicht mehr veröffentlichen!</span>
                     </label>

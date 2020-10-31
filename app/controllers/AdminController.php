@@ -742,7 +742,8 @@ class AdminController extends \BaseController {
              * Also delete from production (Ausspielungsserver) if
              * delete from development (Redaktionsserver) == ok
              */
-            if (isset($delDevelopment) && $delDevelopment == 'ok') {
+            if (isset($delDevelopment) && $delDevelopment == 'ok' &&
+                $va->last_published_at && $va->last_unpublished_at < $va->last_published_at) {
                 $delProduktion = 'ok';
             }
 
