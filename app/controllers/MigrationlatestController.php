@@ -86,6 +86,10 @@ class MigrationlatestController extends \BaseController {
             '<span class="text-danger glyphicon glyphicon-exclamation-sign"></span> ' .
             '<strong>Etwas stimmt nicht!</strong> Rückgabe Wert: <div>' . $result . '</div>';
             $this->msg['Tabelle exhibits und exhibit_pages'][] = 'Feld "id" auf 1 setzen: ' . $resmsg;
+        } elseif (count($exhibits) > 1) {
+            $this->msg['Tabelle exhibits und exhibit_pages'][] = 'Feld "id" auf 1 setzen: ' .
+            '<div style="color: #a94442;"><span class="text-danger glyphicon glyphicon-exclamation-sign"></span> ' .
+            '<strong>Fehler: Es existiert mehr als eine Ausstellung in der Instanz!</strong></div>';
         }
     }
 
