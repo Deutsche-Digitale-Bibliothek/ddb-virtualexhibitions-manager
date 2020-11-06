@@ -105,7 +105,8 @@ class UserController extends \BaseController {
             $user->surename = $input['surename'];
             $user->isroot = (int) $input['isroot'];
             $user->save();
-            return Redirect::to('user/list');
+            return Redirect::to('user/list')->with('success-message',
+                'Benutzer &quot;' . strip_tags($user->username) . '&quot; erfolgreich angelegt.');
         } else {
             return Redirect::to('user/register')->withInput()->withErrors($validator);
         }
