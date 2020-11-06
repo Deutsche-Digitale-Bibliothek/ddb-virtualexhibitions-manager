@@ -59,7 +59,7 @@ class OmekaUserController extends \BaseController {
 
         $input = Input::all();
         $rules = array(
-            'username'  => 'required|alpha|unique:omim_omeka_users',
+            'username'  => 'required|alpha|unique:omim_omeka_users|max:30',
             'password'  => 'required|min:6',
             'name'      => 'required',
             'email'     => 'required|email'
@@ -147,7 +147,11 @@ class OmekaUserController extends \BaseController {
         if (!isset($user) || empty($user)) {
             return Redirect::to('omeka-user/list')->with('error-message', $this->msg{'error'}{'user-not-found'});
         }
-        $rules = array('username' => 'required|regex:/^[A-Za-z0-9\-@\._]+$/', 'email' => 'required|email');
+        $rules = array(
+            'username'  => 'required|regex:/^[A-Za-z0-9\-@\._]+$/|max:30',
+            'name'      => 'required',
+            'email'     => 'required|email'
+        );
         $messages = array();
         $validator = Validator::make($params, $rules, $messages);
         if (!$validator->passes()) {
@@ -518,7 +522,11 @@ class OmekaUserController extends \BaseController {
                 ->with('error-message', $this->msg{'error'}{'select-user'});
         }
 
-        $rules = array('username' => 'required|regex:/^[A-Za-z0-9\-@\._]+$/', 'email' => 'required|email');
+        $rules = array(
+            'username' => 'required|regex:/^[A-Za-z0-9\-@\._]+$/|max:30',
+            'name'    => 'required',
+            'email'   => 'required|email'
+        );
         $messages = array();
         $validator = Validator::make($params, $rules, $messages);
         if (!$validator->passes()) {
