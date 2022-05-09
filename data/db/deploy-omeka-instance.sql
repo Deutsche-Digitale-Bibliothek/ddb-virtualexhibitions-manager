@@ -303,7 +303,7 @@ INSERT INTO `omeka_exhxxxx-exhibit-number-xxxx_options` (`id`, `name`, `value`) 
 (179, 'omeka_version',  '2.6.1'),
 (191, 'theme_ddb_options',  'a:11:{s:4:\"logo\";N;s:17:\"header_background\";N;s:18:\"header_title_color\";s:6:\"000000\";s:21:\"display_featured_item\";s:1:\"0\";s:27:\"display_featured_collection\";s:1:\"0\";s:24:\"display_featured_exhibit\";s:1:\"1\";s:21:\"homepage_recent_items\";s:0:\"\";s:13:\"homepage_text\";s:0:\"\";s:11:\"footer_text\";s:0:\"\";s:24:\"display_footer_copyright\";s:1:\"0\";s:17:\"item_file_gallery\";s:1:\"1\";}'),
 (219, 'site_title', 'xxxx-exhibit-title-xxxx'),
-(220, 'description',  'DDB Omeka Ausstellungen'),
+(220, 'description',  'DDB Virtuelle Ausstellungen'),
 (221, 'administrator_email',  'ddbstudio@deutsche-digitale-bibliothek.de'),
 (222, 'copyright',  ''),
 (223, 'author', ''),
