@@ -64,14 +64,29 @@ class ApiController extends BaseController {
                 $filteredExhibits[$key]['last_published_at'] = $exhibit['last_published_at'];
                 $filteredExhibits[$key]['exhibit_type'] = $exhibit['exhibit_type'];
                 $filteredExhibits[$key]['color_palette'] = $exhibit['color_palette'];
+
+                // $filteredExhibits[] = [
+                //     'id' => $exhibit['id'],
+                //     'title' => $exhibit['title'],
+                //     'subtitle' => $exhibit['subtitle'],
+                //     'slug' => $exhibit['slug'],
+                //     'language' => $exhibit['language'],
+                //     'created_at' => $exhibit['created_at'],
+                //     'updated_at' => $exhibit['updated_at'],
+                //     'last_published_at' => $exhibit['last_published_at'],
+                //     'exhibit_type' => $exhibit['exhibit_type'],
+                //     'color_palette' => $exhibit['color_palette'],
+                // ];
+
             }
         }
-
         return Response::json(
             [
 			    'exhibits' => $filteredExhibits,
             ],
-			200
+			200,
+            [],
+            0
 		);
     }
 }
