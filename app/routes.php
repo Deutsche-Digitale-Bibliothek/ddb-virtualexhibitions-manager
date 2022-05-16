@@ -41,3 +41,5 @@ Route::group(array('before' => 'auth'), function(){
 Route::group(array('before' => 'auth'), function(){
     Route::controller('migratelatest', 'MigrationlatestController');
 });
+
+Route::controller('api', 'ApiController');
